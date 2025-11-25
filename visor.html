@@ -16,245 +16,286 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
     <style>
-        /* SISTEMA DE DISEÑO PAMESA MOBILE */
-        :root {
-            --pamesa-red: #ce1719;
-            --pamesa-dark: #1e293b;
-            --pamesa-gray: #64748b;
-            --bg-page: #f8fafc;
-        }
+        /* ... (Estilos anteriores) ... */
 
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: var(--bg-page);
-            color: var(--pamesa-dark);
-            -webkit-tap-highlight-color: transparent;
-            overflow-x: hidden;
-        }
-
-        /* Utilidades */
-        .safe-area-bottom {
-            padding-bottom: env(safe-area-inset-bottom, 20px);
-        }
-
-        /* Scroll Margin para que el header fijo no tape el título al saltar */
-        .scroll-target {
-            scroll-margin-top: 130px;
-        }
-
-        /* LOADER */
-        #loader-screen {
+        /* SCANNER MODAL */
+        #scanner-modal {
             position: fixed;
             inset: 0;
-            background: white;
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.3s ease;
-        }
-
-        /* HEADER & NAV */
-        .sticky-header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(8px);
-            border-bottom: 1px solid #e2e8f0;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
-        }
-
-        .nav-select-container {
-            position: relative;
-            background: #f1f5f9;
-            border-radius: 8px;
-            padding: 0 10px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-        }
-
-        .nav-select {
-            appearance: none;
-            background: transparent;
-            border: none;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--pamesa-dark);
-            width: 100%;
-            padding-right: 20px;
-            outline: none;
-        }
-
-        /* TARJETAS DE ARTÍCULO */
-        .art-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e2e8f0;
-            display: flex;
-            overflow: hidden;
-            margin-bottom: 12px;
-            height: 110px;
-            /* Altura fija para consistencia */
-        }
-
-        .art-thumb {
-            width: 110px;
-            height: 100%;
-            flex-shrink: 0;
-            background: #f8fafc;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-right: 1px solid #f1f5f9;
-        }
-
-        .art-thumb img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .art-content {
-            flex: 1;
-            padding: 10px 12px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        /* BADGES */
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.65rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            margin-right: 4px;
-            letter-spacing: 0.5px;
-        }
-
-        .badge-tech {
-            background: #f0fdf4;
-            color: #166534;
-            border: 1px solid #bbf7d0;
-        }
-
-        .badge-price {
-            background: #fef2f2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-        }
-
-        /* PACKING CARD REFINADA */
-        .packing-card {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-        }
-
-        .packing-header {
-            background: #f8fafc;
-            padding: 10px 16px;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .packing-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            /* 3 columnas */
-            gap: 1px;
-            background: #e2e8f0;
-            /* Color de las líneas del grid */
-            padding: 1px 0 0 0;
-            /* Borde superior */
-        }
-
-        .packing-cell {
-            background: white;
-            padding: 10px 4px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .pack-label {
-            font-size: 0.55rem;
-            color: #94a3b8;
-            text-transform: uppercase;
-            font-weight: 700;
-            margin-bottom: 2px;
-        }
-
-        .pack-value {
-            font-size: 0.8rem;
-            color: var(--pamesa-dark);
-            font-weight: 600;
-        }
-
-        /* SEPARADOR DE FORMATO */
-        .format-divider {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin: 24px 0 12px 0;
-            padding: 0 4px;
-        }
-
-        .format-line {
-            flex: 1;
-            height: 1px;
-            background: #cbd5e1;
-        }
-
-        .format-title {
-            font-size: 0.8rem;
-            font-weight: 800;
-            color: var(--pamesa-red);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        /* MODAL IMAGEN */
-        #img-modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 200;
+            background: #000;
+            z-index: 400;
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
         }
 
-        .modal-active {
-            display: flex !important;
-            animation: fadeIn 0.2s ease-out;
+        #reader {
+            width: 100%;
+            max-width: 500px;
+            background: #000;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
+        .scan-close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            padding: 10px;
+            z-index: 410;
         }
+
+        .scan-instr {
+            color: white;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 0 20px;
+        }
+    </style>
+    /* SISTEMA DE DISEÑO PAMESA MOBILE */
+    :root {
+    --pamesa-red: #ce1719;
+    --pamesa-dark: #1e293b;
+    --pamesa-gray: #64748b;
+    --bg-page: #f8fafc;
+    }
+
+    body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: var(--bg-page);
+    color: var(--pamesa-dark);
+    -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
+    }
+
+    /* Utilidades */
+    .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+    }
+
+    /* Scroll Margin para que el header fijo no tape el título al saltar */
+    .scroll-target {
+    scroll-margin-top: 130px;
+    }
+
+    /* LOADER */
+    #loader-screen {
+    position: fixed;
+    inset: 0;
+    background: white;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.3s ease;
+    }
+
+    /* HEADER & NAV */
+    .sticky-header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+    }
+
+    .nav-select-container {
+    position: relative;
+    background: #f1f5f9;
+    border-radius: 8px;
+    padding: 0 10px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    }
+
+    .nav-select {
+    appearance: none;
+    background: transparent;
+    border: none;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--pamesa-dark);
+    width: 100%;
+    padding-right: 20px;
+    outline: none;
+    }
+
+    /* TARJETAS DE ARTÍCULO */
+    .art-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    overflow: hidden;
+    margin-bottom: 12px;
+    height: 110px;
+    /* Altura fija para consistencia */
+    }
+
+    .art-thumb {
+    width: 110px;
+    height: 100%;
+    flex-shrink: 0;
+    background: #f8fafc;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid #f1f5f9;
+    }
+
+    .art-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    }
+
+    .art-content {
+    flex: 1;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    }
+
+    /* BADGES */
+    .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-right: 4px;
+    letter-spacing: 0.5px;
+    }
+
+    .badge-tech {
+    background: #f0fdf4;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+    }
+
+    .badge-price {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    }
+
+    /* PACKING CARD REFINADA */
+    .packing-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    }
+
+    .packing-header {
+    background: #f8fafc;
+    padding: 10px 16px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    }
+
+    .packing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    /* 3 columnas */
+    gap: 1px;
+    background: #e2e8f0;
+    /* Color de las líneas del grid */
+    padding: 1px 0 0 0;
+    /* Borde superior */
+    }
+
+    .packing-cell {
+    background: white;
+    padding: 10px 4px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    }
+
+    .pack-label {
+    font-size: 0.55rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 2px;
+    }
+
+    .pack-value {
+    font-size: 0.8rem;
+    color: var(--pamesa-dark);
+    font-weight: 600;
+    }
+
+    /* SEPARADOR DE FORMATO */
+    .format-divider {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 24px 0 12px 0;
+    padding: 0 4px;
+    }
+
+    .format-line {
+    flex: 1;
+    height: 1px;
+    background: #cbd5e1;
+    }
+
+    .format-title {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--pamesa-red);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    }
+
+    /* MODAL IMAGEN */
+    #img-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 200;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    }
+
+    .modal-active {
+    display: flex !important;
+    animation: fadeIn 0.2s ease-out;
+    }
+
+    @keyframes fadeIn {
+    from {
+    opacity: 0;
+    }
+
+    to {
+    opacity: 1;
+    }
+    }
     </style>
     <style>
         /* --- NUEVAS MEJORAS (20MM, EXT, DUP) --- */
@@ -618,12 +659,32 @@
         <header class="fixed top-0 left-0 right-0 z-40 sticky-header h-[110px]">
             <!-- Top Bar -->
             <div class="flex items-center justify-between px-4 h-[60px]">
-                <img src="LOGO-PAMESA.jpg" alt="Pamesa" class="h-6 w-auto">
+                <div class="flex items-center gap-3">
+                    <img src="LOGO-PAMESA.jpg" alt="Pamesa" class="h-6 w-auto">
+                    <!-- BOTÓN ESCÁNER -->
+                    <button onclick="startScan()"
+                        class="bg-gray-900 text-white p-2 rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform">
+                        <i data-lucide="scan-line" class="w-4 h-4"></i>
+                    </button>
+                </div>
                 <div class="text-right">
                     <div class="text-[9px] text-gray-400 uppercase font-bold tracking-widest">SERIE</div>
                     <div id="header-serie-name" class="text-base font-black text-gray-900 leading-none tracking-tight">
                         ...</div>
                 </div>
+            </div>
+
+            <!-- ... (Resto del Header) ... -->
+
+            <!-- ... (Resto del HTML) ... -->
+
+            <!-- MODAL ESCÁNER QR -->
+            <div id="scanner-modal">
+                <button class="scan-close-btn" onclick="stopScan()">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+                <div id="reader"></div>
+                <p class="scan-instr">Enfoca el código QR de la serie</p>
             </div>
 
             <!-- Navegación de Formatos -->
@@ -1299,6 +1360,68 @@
             const err = document.getElementById('error-screen');
             err.classList.remove('hidden');
             if (msg) err.querySelector('p').innerText = msg;
+        }
+
+        // --- LÓGICA ESCÁNER QR ---
+        let html5QrcodeScanner = null;
+
+        function startScan() {
+            const modal = document.getElementById('scanner-modal');
+            modal.style.display = 'flex';
+
+            if (!html5QrcodeScanner) {
+                html5QrcodeScanner = new Html5Qrcode("reader");
+            }
+
+            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+            // Usar cámara trasera ("environment")
+            html5QrcodeScanner.start({ facingMode: "environment" }, config, onScanSuccess)
+                .catch(err => {
+                    console.error("Error iniciando cámara", err);
+                    alert("No se pudo iniciar la cámara. Por favor, revisa los permisos.");
+                    stopScan();
+                });
+        }
+
+        function stopScan() {
+            const modal = document.getElementById('scanner-modal');
+            modal.style.display = 'none';
+
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.stop().then(() => {
+                    html5QrcodeScanner.clear();
+                    html5QrcodeScanner = null; // Resetear para próxima vez
+                }).catch(err => {
+                    console.error("Error al detener escáner", err);
+                });
+            }
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+            console.log(`QR Detectado: ${decodedText}`);
+
+            // 1. Intentar parsear como URL
+            try {
+                // Si el texto no empieza por http, lanzará error al crear URL,
+                // así que asumimos que podría ser texto plano.
+                const url = new URL(decodedText);
+                const params = new URLSearchParams(url.search);
+                const serie = params.get("s") || params.get("serie");
+
+                if (serie) {
+                    stopScan();
+                    window.location.search = `?s=${serie}`; // Recargar con nueva serie
+                } else {
+                    alert("El QR es una URL pero no tiene parámetro de serie válido.");
+                }
+            } catch (e) {
+                // 2. No es URL, asumimos que es el código de serie directo
+                if (decodedText.length > 1) {
+                    stopScan();
+                    window.location.search = `?s=${decodedText}`;
+                }
+            }
         }
     </script>
 </body>
