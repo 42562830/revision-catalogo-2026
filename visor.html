@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Catálogo Digital Pamesa</title>
+
+    <!-- FUENTES -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- LIBRERÍAS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --pamesa-red: #ce1719;
+            --pamesa-dark: #0f172a;
+            --bg-page: #f8fafc;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-page);
+            color: var(--pamesa-dark);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Utilidades Móviles */
+        .safe-area-bottom {
+            padding-bottom: env(safe-area-inset-bottom, 20px);
+        }
+
+        /* Loader */
+        #loader-screen {
+            position: fixed;
+            inset: 0;
+            background: white;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Tarjetas de Artículo */
+        .art-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            display: flex;
+            margin-bottom: 12px;
+            border: 1px solid #f1f5f9;
+            transition: transform 0.1s;
+        }
+
+        .art-card:active {
+            transform: scale(0.98);
+        }
+
+        .art-thumb {
+            width: 100px;
+            height: 100px;
+            flex-shrink: 0;
+            background: #f1f5f9;
+            position: relative;
+        }
+
+        .art-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .art-content {
+            flex: 1;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Tech Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-right: 4px;
+            margin-top: 4px;
+        }
+
+        .badge-tech {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid #dcfce7;
+        }
+
+        .badge-price {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fee2e2;
+        }
+
+        /* Modal Imagen */
+        #img-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-active {
+            display: flex !important;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Packing Accordion */
+        .packing-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .packing-row:last-child { border-bottom: none; }
+        
+        .label-val { font-weight: 600; color: var(--pamesa-dark); }
+        .label-key { color: #64748b; }
+
+        /* Separador de Formato */
+        .format-header {
+            position: sticky;
+            top: 60px; /* Ajustar segun altura header */
+            z-index: 10;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(5px);
+            padding: 8px 16px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--pamesa-red);
+            border-bottom: 1px solid #e2e8f0;
+            border-top: 1px solid #e2e8f0;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 1. PANTALLA DE CARGA -->
+    <div id="loader-screen">
+        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-red-600 mb-4"></div>
+        <p class="text-xs font-bold text-gray-400 tracking-widest uppercase">Cargando Catálogo...</p>
+    </div>
+
+    <!-- 2. ERROR STATE -->
+    <div id="error-screen" class="hidden fixed inset-0 bg-white z-50 flex flex-col items-center justify-center p-8 text-center">
+        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+            <i data-lucide="qr-code" class="w-8 h-8 text-gray-400"></i>
+        </div>
+        <h2 class="text-xl font-bold text-gray-800 mb-2">Código QR Inválido</h2>
+        <p class="text-sm text-gray-500 mb-6">No se ha detectado ninguna serie o el producto no existe en la base de datos.</p>
+        <button onclick="window.location.reload()" class="bg-gray-900 text-white px-6 py-3 rounded-full text-sm font-bold shadow-lg">Intentar de nuevo</button>
+    </div>
+
+    <!-- 3. INTERFAZ PRINCIPAL -->
+    <div id="app" class="hidden pb-12">
+        
+        <!-- Navbar Fixed -->
+        <header class="fixed top-0 left-0 right-0 bg-white h-[60px] z-40 border-b border-gray-200 flex items-center justify-between px-4 shadow-sm">
+            <img src="LOGO-PAMESA.jpg" alt="Pamesa" class="h-6 w-auto">
+            <div class="text-right">
+                <div class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Serie</div>
+                <div id="header-serie-name" class="text-sm font-bold text-gray-900 leading-none">...</div>
+            </div>
+        </header>
+
+        <!-- Spacer para el header fixed -->
+        <div class="h-[60px]"></div>
+
+        <!-- Cabecera Serie (Hero) -->
+        <div class="bg-white p-6 mb-2 border-b border-gray-100">
+            <h1 id="hero-title" class="text-2xl font-extrabold text-gray-900 mb-2 tracking-tight"></h1>
+            <div id="hero-badges" class="flex flex-wrap gap-2 mb-4">
+                <!-- Badges tipología se inyectan aquí -->
+            </div>
+            
+            <!-- Resumen Técnico Rápido -->
+            <div class="grid grid-cols-3 gap-2 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                <div class="text-center">
+                    <div class="text-[10px] text-gray-400 font-bold uppercase">Material</div>
+                    <div id="meta-material" class="text-xs font-bold text-gray-700">-</div>
+                </div>
+                <div class="text-center border-l border-gray-200">
+                    <div class="text-[10px] text-gray-400 font-bold uppercase">Uso</div>
+                    <div id="meta-uso" class="text-xs font-bold text-gray-700">-</div>
+                </div>
+                <div class="text-center border-l border-gray-200">
+                    <div class="text-[10px] text-gray-400 font-bold uppercase">Var.</div>
+                    <div id="meta-var" class="text-xs font-bold text-gray-700">-</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LISTADO DE ARTÍCULOS -->
+        <div id="articles-container" class="px-3">
+            <!-- JS Rellena esto -->
+        </div>
+
+        <!-- PACKING INFO -->
+        <div class="px-3 mt-6 mb-8 safe-area-bottom">
+            <div class="bg-slate-900 text-white rounded-xl overflow-hidden shadow-lg">
+                <div class="p-4 border-b border-slate-700 flex items-center gap-2">
+                    <i data-lucide="package" class="w-5 h-5 text-gray-400"></i>
+                    <h3 class="font-bold text-sm uppercase tracking-wide">Datos de Packing</h3>
+                </div>
+                <div id="packing-container" class="p-4 space-y-4">
+                    <!-- JS Rellena esto -->
+                </div>
+            </div>
+            
+            <div class="text-center mt-8 mb-4">
+                <p class="text-[10px] text-gray-400 uppercase">Pamesa Cerámica - Catálogo Digital</p>
+                <p class="text-[10px] text-gray-300">Datos informativos sujetos a cambios</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL IMAGEN (LIGHTBOX) -->
+    <div id="img-modal" onclick="closeImage()">
+        <img id="modal-img-tag" src="" class="max-w-full max-h-[80vh] object-contain shadow-2xl rounded-lg" alt="Zoom">
+        <button class="mt-6 bg-white/10 backdrop-blur text-white border border-white/20 px-6 py-2 rounded-full text-sm font-bold">Cerrar</button>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN
+        const CONFIG = {
+            csvUrl: './BD-21-11-2025.csv',
+            encoding: 'ISO-8859-1'
+        };
+
+        const COLS = {
+            SERIE: 'Serie_web',
+            COLECCION: 'Coleccion_web',
+            NOMBRE: 'Nombre',
+            MEDIDA: 'Medida',
+            COLOR: 'Color_ok',
+            ACABADO: 'Acabado_pieza_web',
+            IMAGEN: 'Imagen_web',
+            ESPESOR: 'Espesor_mm',
+            ID: 'Id._Articulo',
+            PRECIO: 'Grupo_Tarifa',
+            TIPOLOGIA: 'Desc._Familia_web',
+            USO: 'Tipo_de_uso',
+            VARIACION: 'Variacion_cromatica',
+            
+            // TÉCNICOS
+            CLASE: 'UNE_41901:2017_EX',
+            R: 'Deslizamiento_DIN_51130',
+            
+            // PACKING
+            PZ_CAJA: 'Pz/Caja',
+            M2_CAJA: 'M2/Caja',
+            KG_CAJA: 'Kg/Caja',
+            M2_PALLET: 'M2/Pallet',
+            KG_PALLET: 'Kg/Pallet',
+            AREA: 'area' // Para ordenar
+        };
+
+        // ESTADO
+        let appData = {
+            serieRows: [],
+            serieName: '',
+            collName: ''
+        };
+
+        // INICIO
+        document.addEventListener('DOMContentLoaded', () => {
+            initApp();
+        });
+
+        function initApp() {
+            // 1. Obtener parámetros URL (ej: ?s=ATLAS)
+            const params = new URLSearchParams(window.location.search);
+            const targetSerie = params.get('s') || params.get('serie'); // Acepta ?s= o ?serie=
+            
+            // MODO DEMO: Si no hay QR, usa una serie por defecto para probar (Borrar en prod si se quiere)
+            // if (!targetSerie) {
+            //     loadCSV('ATLAS'); // Demo default
+            //     return;
+            // }
+
+            if (!targetSerie) {
+                showError();
+                return;
+            }
+
+            loadCSV(targetSerie.trim());
+        }
+
+        function loadCSV(filterSerie) {
+            fetch(CONFIG.csvUrl)
+                .then(r => {
+                    if(!r.ok) throw new Error("404 CSV");
+                    return r.arrayBuffer();
+                })
+                .then(buffer => {
+                    const decoder = new TextDecoder(CONFIG.encoding);
+                    const csvText = decoder.decode(buffer);
+                    
+                    Papa.parse(csvText, {
+                        header: true,
+                        delimiter: ";",
+                        skipEmptyLines: true,
+                        complete: function(results) {
+                            processData(results.data, filterSerie);
+                        },
+                        error: function() { showError(); }
+                    });
+                })
+                .catch(e => {
+                    console.error(e);
+                    showError();
+                });
+        }
+
+        function processData(allRows, targetName) {
+            // Filtrado insensible a mayúsculas
+            const targetUpper = targetName.toUpperCase();
+            
+            appData.serieRows = allRows.filter(r => {
+                const s = r[COLS.SERIE];
+                return s && s.toUpperCase() === targetUpper;
+            });
+
+            if (appData.serieRows.length === 0) {
+                showError();
+                return;
+            }
+
+            // Datos Generales
+            appData.serieName = appData.serieRows[0][COLS.SERIE];
+            appData.collName = appData.serieRows[0][COLS.COLECCION];
+
+            renderView();
+        }
+
+        function renderView() {
+            // 1. Ocultar Loader
+            document.getElementById('loader-screen').classList.add('opacity-0', 'pointer-events-none');
+            document.getElementById('app').classList.remove('hidden');
+
+            // 2. Cabecera
+            document.getElementById('header-serie-name').innerText = appData.serieName;
+            document.getElementById('hero-title').innerText = appData.serieName;
+            
+            // Metadatos Serie (usamos el primer registro como referencia)
+            const first = appData.serieRows[0];
+            document.getElementById('meta-material').innerText = cleanVal(first[COLS.TIPOLOGIA]) || '-';
+            document.getElementById('meta-uso').innerText = cleanVal(first[COLS.USO]) || '-';
+            
+            // Badge Variación
+            const variacion = cleanVal(first[COLS.VARIACION]);
+            let vCode = '-';
+            if(variacion.includes('UNIFORME')) vCode = 'V1';
+            else if(variacion.includes('LEVE')) vCode = 'V2';
+            else if(variacion.includes('MODERADA')) vCode = 'V3';
+            else if(variacion.includes('ALTA')) vCode = 'V4';
+            document.getElementById('meta-var').innerHTML = `<span class="font-bold text-gray-900">${vCode}</span>`;
+
+            // 3. Renderizado de Artículos
+            renderArticles();
+
+            // 4. Renderizado de Packing
+            renderPacking();
+            
+            lucide.createIcons();
+        }
+
+        function renderArticles() {
+            const container = document.getElementById('articles-container');
+            const rows = appData.serieRows;
+
+            // Ordenar: Formato Grande primero -> luego Nombre
+            rows.sort((a, b) => {
+                const areaA = parseFloat((a[COLS.AREA] || '0').replace(',', '.'));
+                const areaB = parseFloat((b[COLS.AREA] || '0').replace(',', '.'));
+                if (areaB !== areaA) return areaB - areaA;
+                return (a[COLS.NOMBRE] || '').localeCompare(b[COLS.NOMBRE] || '');
+            });
+
+            let lastFormat = '';
+            let html = '';
+
+            rows.forEach(row => {
+                // Cabecera de Formato (Sticky)
+                const rawFormat = cleanVal(row[COLS.MEDIDA]);
+                const rawThick = cleanVal(row[COLS.ESPESOR]);
+                const formatLabel = `${rawFormat} <span class="font-normal text-gray-500 ml-1">(${rawThick}mm)</span>`;
+                const formatKey = rawFormat + rawThick;
+
+                if (formatKey !== lastFormat) {
+                    html += `
+                        <div class="format-header">
+                            <i data-lucide="ruler" class="w-4 h-4"></i> ${formatLabel}
+                        </div>
+                    `;
+                    lastFormat = formatKey;
+                }
+
+                // Datos Artículo
+                const imgUrl = row[COLS.IMAGEN];
+                const hasImg = imgUrl && imgUrl.length > 5;
+                const nombre = cleanVal(row[COLS.NOMBRE]);
+                const color = cleanVal(row[COLS.COLOR]);
+                const acabado = cleanVal(row[COLS.ACABADO]);
+                const precio = cleanVal(row[COLS.PRECIO]);
+                const id = row[COLS.ID];
+                
+                // Badges Técnicos
+                let badgesHtml = '';
+                const clase = cleanVal(row[COLS.CLASE]);
+                const rVal = cleanVal(row[COLS.R]);
+                
+                if(clase) badgesHtml += `<span class="badge badge-tech">CTE ${clase}</span>`;
+                if(rVal) badgesHtml += `<span class="badge badge-tech">R${rVal.replace('R','')}</span>`;
+                if(precio) badgesHtml += `<span class="badge badge-price">${precio}</span>`;
+
+                html += `
+                <div class="art-card">
+                    <div class="art-thumb" onclick="${hasImg ? `openImage('${imgUrl}')` : ''}">
+                        ${hasImg 
+                            ? `<img src="${imgUrl}" loading="lazy" alt="${nombre}">` 
+                            : `<div class="w-full h-full flex items-center justify-center text-gray-300"><i data-lucide="image-off" class="w-6 h-6"></i></div>`
+                        }
+                        ${hasImg ? `<div class="absolute bottom-1 right-1 bg-black/50 p-1 rounded-full"><i data-lucide="maximize-2" class="w-3 h-3 text-white"></i></div>` : ''}
+                    </div>
+                    <div class="art-content">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-bold text-sm text-gray-900 leading-tight mb-1">${nombre}</h3>
+                                <p class="text-[11px] text-gray-500 font-medium mb-1 line-clamp-1">${color} • ${acabado}</p>
+                            </div>
+                        </div>
+                        <div class="mt-auto pt-2 flex flex-wrap">
+                            ${badgesHtml}
+                        </div>
+                        <div class="text-[10px] text-gray-300 mt-1 font-mono text-right">#${id}</div>
+                    </div>
+                </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function renderPacking() {
+            const container = document.getElementById('packing-container');
+            const uniquePacks = new Map();
+
+            // Extraer packings únicos por formato
+            appData.serieRows.forEach(r => {
+                const medida = cleanVal(r[COLS.MEDIDA]);
+                const espesor = cleanVal(r[COLS.ESPESOR]);
+                const key = medida + '_' + espesor;
+
+                if (!uniquePacks.has(key) && (r[COLS.PZ_CAJA] || r[COLS.M2_PALLET])) {
+                    uniquePacks.set(key, {
+                        medida, espesor,
+                        pz_cj: cleanVal(r[COLS.PZ_CAJA]),
+                        m2_cj: cleanVal(r[COLS.M2_CAJA]),
+                        cj_pal: cleanVal(r[COLS.M2_PALLET]), // Ojo: CSV a veces tiene m2/pal
+                        kg_cj: cleanVal(r[COLS.KG_CAJA]),
+                        kg_pal: cleanVal(r[COLS.KG_PALLET])
+                    });
+                }
+            });
+
+            if (uniquePacks.size === 0) {
+                container.innerHTML = '<div class="text-center text-gray-500 text-xs py-4">Información de packing no disponible.</div>';
+                return;
+            }
+
+            let html = '';
+            uniquePacks.forEach(p => {
+                html += `
+                <div class="bg-slate-800 rounded-lg p-3 text-xs">
+                    <div class="font-bold text-white mb-2 pb-1 border-b border-slate-600 flex justify-between">
+                        <span>${p.medida}</span>
+                        <span class="text-slate-400 font-normal">${p.espesor}mm</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-1">
+                        <div class="packing-row"><span class="label-key">Pz/Caja</span> <span class="label-val text-white">${p.pz_cj || '-'}</span></div>
+                        <div class="packing-row"><span class="label-key">M2/Caja</span> <span class="label-val text-white">${p.m2_cj || '-'}</span></div>
+                        <div class="packing-row"><span class="label-key">Kg/Caja</span> <span class="label-val text-white">${p.kg_cj || '-'}</span></div>
+                        <div class="packing-row"><span class="label-key">Kg/Pallet</span> <span class="label-val text-white">${p.kg_pal || '-'}</span></div>
+                    </div>
+                </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // UTILS
+        function cleanVal(val) {
+            if (val === null || val === undefined) return '';
+            return String(val).trim();
+        }
+
+        function showError() {
+            document.getElementById('loader-screen').classList.add('hidden');
+            document.getElementById('error-screen').classList.remove('hidden');
+        }
+
+        // IMAGE MODAL
+        function openImage(url) {
+            const modal = document.getElementById('img-modal');
+            const img = document.getElementById('modal-img-tag');
+            img.src = url;
+            modal.classList.add('modal-active');
+            // Bloquear scroll body
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImage() {
+            const modal = document.getElementById('img-modal');
+            modal.classList.remove('modal-active');
+            document.body.style.overflow = '';
+            setTimeout(() => { document.getElementById('modal-img-tag').src = ''; }, 200);
+        }
+    </script>
+</body>
+</html>
