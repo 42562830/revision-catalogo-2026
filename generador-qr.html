@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de QRs - Pamesa Exposición</title>
+
+    <!-- FUENTES CORPORATIVAS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- LIBRERÍAS EXTERNAS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Librería para generar QRs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        /* ========================================= */
+        /* SISTEMA DE DISEÑO PAMESA (Heredado)       */
+        /* ========================================= */
+        :root {
+            --color-principal: #ce1719;
+            --color-fondo: #f8fafc;
+            --color-blanco: #ffffff;
+            --color-texto-principal: #0f172a;
+            --color-borde-suave: #e2e8f0;
+            --radio-borde: 16px;
+            --font-main: 'Montserrat', sans-serif;
+        }
+
+        * { box-sizing: border-box; outline: none; }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--color-fondo);
+            color: var(--color-texto-principal);
+            height: 100vh;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        #app-container { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
+
+        /* SIDEBAR */
+        #sidebar {
+            width: 320px;
+            background: white;
+            border-right: 1px solid var(--color-borde-suave);
+            display: flex;
+            flex-direction: column;
+            z-index: 20;
+        }
+
+        .sidebar-header { padding: 24px; border-bottom: 1px solid var(--color-borde-suave); }
+        
+        .search-input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            border-radius: 8px;
+            border: 1px solid var(--color-borde-suave);
+            background-color: #f9fafb;
+            font-size: 0.9em;
+        }
+        .search-input:focus { border-color: var(--color-principal); background: #fff; }
+
+        /* ACORDEÓN SIDEBAR */
+        .collection-group { border-bottom: 1px solid #f1f5f9; }
+        .collection-header {
+            padding: 14px 20px;
+            background-color: #f8fafc;
+            cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+            user-select: none;
+        }
+        .collection-header:hover { background-color: #f1f5f9; }
+        .collection-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #334155; display: flex; align-items: center; gap: 8px; }
+        
+        .series-container { display: none; background-color: #ffffff; }
+        .series-container.expanded { display: block; }
+
+        .nav-item {
+            cursor: pointer;
+            padding: 10px 20px 10px 44px;
+            font-size: 0.85rem;
+            color: #475569;
+            transition: all 0.15s;
+        }
+        .nav-item:hover { background-color: #f8fafc; color: var(--color-principal); }
+        .nav-item.active { background-color: #fef2f2; color: var(--color-principal); font-weight: 600; border-left: 3px solid var(--color-principal); }
+        .nav-item.hidden-item { display: none !important; }
+
+        /* CONTENIDO PRINCIPAL */
+        #main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--color-fondo);
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+        }
+
+        /* TARJETA QR */
+        .qr-panel {
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid var(--color-borde-suave);
+            animation: slideUp 0.4s ease-out;
+        }
+
+        #qr-canvas {
+            display: flex;
+            justify-content: center;
+            margin: 30px auto;
+            padding: 20px;
+            background: white; /* Asegura contraste */
+            border: 1px solid #eee;
+            border-radius: 12px;
+            width: fit-content;
+        }
+
+        /* Botones Acción */
+        .btn-print {
+            background: #1e293b;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 99px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 20px;
+        }
+        .btn-print:hover { transform: translateY(-2px); background: #0f172a; }
+
+        .url-box {
+            background: #f1f5f9;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.75rem;
+            color: #64748b;
+            word-break: break-all;
+            margin-top: 20px;
+            border: 1px dashed #cbd5e1;
+        }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ESTILOS DE IMPRESIÓN */
+        @media print {
+            body * { visibility: hidden; }
+            #main-content, #main-content * { visibility: visible; }
+            #sidebar { display: none; }
+            #app-container { height: auto; overflow: visible; display: block; }
+            .qr-panel { 
+                box-shadow: none; border: none; 
+                position: absolute; top: 0; left: 0; width: 100%; margin: 0; 
+            }
+            .btn-print { display: none; }
+            .url-box { display: none; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="app-container">
+
+        <!-- SIDEBAR (Igual que index10.html) -->
+        <aside id="sidebar">
+            <div class="sidebar-header">
+                <div class="flex items-center gap-3 mb-4">
+                    <img src="LOGO-PAMESA.jpg" alt="Pamesa" class="h-8 w-auto object-contain">
+                    <div class="h-4 w-px bg-gray-300"></div>
+                    <span class="font-bold text-sm text-gray-500 tracking-wide">GENERADOR QR</span>
+                </div>
+                <div class="relative mt-4">
+                    <i data-lucide="search" class="absolute left-3 top-3 text-gray-400 w-4 h-4"></i>
+                    <input type="text" id="global-search" placeholder="Buscar serie..." class="search-input">
+                </div>
+            </div>
+
+            <div id="nav-tree" class="flex-1 overflow-y-auto custom-scrollbar">
+                <!-- Se rellena con JS -->
+            </div>
+            
+            <div class="p-4 text-xs text-center text-gray-400 bg-gray-50 border-t border-gray-200">
+                Selecciona una serie para generar su QR
+            </div>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main id="main-content">
+            
+            <!-- Estado Inicial -->
+            <div id="empty-state" class="text-center opacity-50">
+                <i data-lucide="qr-code" class="w-24 h-24 mx-auto text-gray-300 mb-4"></i>
+                <h2 class="text-2xl font-bold text-gray-600">Generador de Etiquetas</h2>
+                <p class="mt-2 text-gray-400">Selecciona una serie del menú para ver su código QR.</p>
+            </div>
+
+            <!-- Panel QR (Oculto inicialmente) -->
+            <div id="qr-content" class="qr-panel hidden">
+                <div class="mb-2">
+                    <span class="text-xs font-bold text-gray-400 uppercase tracking-widest" id="qr-coll">COLECCIÓN</span>
+                </div>
+                <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight mb-2" id="qr-serie">SERIE</h1>
+                <div class="w-16 h-1 bg-red-600 mx-auto rounded-full mb-6"></div>
+
+                <div id="qr-canvas"></div>
+                <p class="text-sm font-bold text-gray-600 uppercase tracking-wide mt-2">Escanea para ver catálogo</p>
+
+                <div class="url-box" id="qr-url">...</div>
+
+                <div class="flex justify-center gap-3">
+                    <button onclick="window.print()" class="btn-print">
+                        <i data-lucide="printer" class="w-4 h-4"></i> Imprimir Etiqueta
+                    </button>
+                    <!-- Botón opcional para descargar PNG -->
+                    <button onclick="downloadQR()" class="btn-print bg-white text-gray-700 border border-gray-200 hover:bg-gray-50">
+                        <i data-lucide="download" class="w-4 h-4"></i> Guardar PNG
+                    </button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // --- CONFIGURACIÓN ---
+        const CONFIG = {
+            csvFileName: './BD-21-11-2025.csv',
+            encoding: 'ISO-8859-1',
+            // URL BASE DE TU PROYECTO GITHUB
+            baseUrl: 'https://42562830.github.io/revision-catalogo-2026/visor.html'
+        };
+
+        const APP_STATE = {
+            hierarchy: {},
+            currentSerie: null
+        };
+
+        const COLS = {
+            COLECCION: 'Coleccion_web',
+            SERIE: 'Serie_web',
+            ID: 'Id._Articulo' // Para verificar validez
+        };
+
+        // --- INICIALIZACIÓN ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCSV();
+        });
+
+        function loadCSV() {
+            fetch(CONFIG.csvFileName)
+                .then(r => r.arrayBuffer())
+                .then(buffer => {
+                    const decoder = new TextDecoder(CONFIG.encoding);
+                    Papa.parse(decoder.decode(buffer), {
+                        header: true,
+                        delimiter: ";",
+                        skipEmptyLines: true,
+                        complete: function(results) {
+                            buildHierarchy(results.data);
+                            renderSidebar();
+                            lucide.createIcons();
+                        }
+                    });
+                })
+                .catch(err => alert("Error cargando CSV: " + err));
+        }
+
+        function buildHierarchy(data) {
+            const tree = {};
+            data.forEach(row => {
+                const s = row[COLS.SERIE];
+                const c = row[COLS.COLECCION];
+                if (!s || !c) return;
+                
+                // Normalizar
+                const cleanS = s.trim();
+                const cleanC = c.trim();
+
+                if (!tree[cleanC]) tree[cleanC] = new Set();
+                tree[cleanC].add(cleanS);
+            });
+            APP_STATE.hierarchy = tree;
+        }
+
+        function renderSidebar() {
+            const nav = document.getElementById('nav-tree');
+            nav.innerHTML = '';
+            
+            const sortedColls = Object.keys(APP_STATE.hierarchy).sort();
+
+            sortedColls.forEach((coll, idx) => {
+                const series = Array.from(APP_STATE.hierarchy[coll]).sort();
+                
+                // Grupo Colección
+                const group = document.createElement('div');
+                group.className = 'collection-group';
+                
+                const header = document.createElement('div');
+                header.className = 'collection-header';
+                header.innerHTML = `
+                    <div class="collection-title">
+                        <i data-lucide="folder" class="w-4 h-4 text-slate-300"></i> ${coll}
+                    </div>
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 transition-transform"></i>
+                `;
+
+                const container = document.createElement('div');
+                container.className = 'series-container';
+                
+                // Click en Colección
+                header.onclick = () => {
+                    const isOpen = container.classList.contains('expanded');
+                    container.classList.toggle('expanded');
+                    header.querySelector('i:last-child').style.transform = isOpen ? 'rotate(0deg)' : 'rotate(90deg)';
+                };
+
+                // Items de Serie
+                series.forEach(serie => {
+                    const item = document.createElement('div');
+                    item.className = 'nav-item';
+                    item.innerText = serie;
+                    item.onclick = () => loadQRView(serie, coll);
+                    container.appendChild(item);
+                });
+
+                group.appendChild(header);
+                group.appendChild(container);
+                nav.appendChild(group);
+            });
+            lucide.createIcons();
+        }
+
+        // --- LÓGICA DE GENERACIÓN DE QR ---
+        function loadQRView(serieName, collName) {
+            // UI Update
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+
+            document.getElementById('empty-state').style.display = 'none';
+            const panel = document.getElementById('qr-content');
+            panel.classList.remove('hidden');
+
+            // Textos
+            document.getElementById('qr-coll').innerText = collName;
+            document.getElementById('qr-serie').innerText = serieName;
+
+            // Generar URL Final
+            // encodeURIComponent asegura que espacios y acentos no rompan el link
+            const finalUrl = `${CONFIG.baseUrl}?s=${encodeURIComponent(serieName)}`;
+            document.getElementById('qr-url').innerText = finalUrl;
+
+            // Limpiar QR anterior
+            const canvasContainer = document.getElementById('qr-canvas');
+            canvasContainer.innerHTML = '';
+
+            // Generar QR Nuevo
+            new QRCode(canvasContainer, {
+                text: finalUrl,
+                width: 200,
+                height: 200,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H // Alto nivel de corrección (mejor para impresión)
+            });
+        }
+
+        // --- BUSCADOR ---
+        document.getElementById('global-search').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const items = document.querySelectorAll('.nav-item');
+            
+            items.forEach(item => {
+                const text = item.innerText.toLowerCase();
+                const parentGroup = item.closest('.collection-group');
+                const container = parentGroup.querySelector('.series-container');
+                
+                if (text.includes(term)) {
+                    item.classList.remove('hidden-item');
+                    parentGroup.style.display = '';
+                    if (term.length > 0) {
+                        container.classList.add('expanded'); // Abrir si hay búsqueda
+                    }
+                } else {
+                    item.classList.add('hidden-item');
+                }
+            });
+        });
+
+        // --- DESCARGAR PNG ---
+        function downloadQR() {
+            const serie = document.getElementById('qr-serie').innerText;
+            const img = document.querySelector('#qr-canvas img');
+            if(img) {
+                const link = document.createElement('a');
+                link.download = `QR_PAMESA_${serie}.png`;
+                link.href = img.src;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+    </script>
+</body>
+</html>
