@@ -16,13 +16,217 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <!-- LIBRERÍA DE CÁMARA AÑADIDA -->
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
     <style>
-        /* ... (Estilos anteriores) ... */
+        /* SISTEMA DE DISEÑO PAMESA MOBILE */
+        :root {
+            --pamesa-red: #ce1719;
+            --pamesa-dark: #1e293b;
+            --pamesa-gray: #64748b;
+            --bg-page: #f8fafc;
+        }
 
-        /* SCANNER MODAL */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-page);
+            color: var(--pamesa-dark);
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+        }
+
+        /* Utilidades */
+        .safe-area-bottom {
+            padding-bottom: env(safe-area-inset-bottom, 20px);
+        }
+
+        /* Scroll Margin para que el header fijo no tape el título al saltar */
+        .scroll-target {
+            scroll-margin-top: 130px;
+        }
+
+        /* LOADER */
+        #loader-screen {
+            position: fixed;
+            inset: 0;
+            background: white;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.3s ease;
+        }
+
+        /* HEADER & NAV */
+        .sticky-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+        }
+
+        .nav-select-container {
+            position: relative;
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 0 10px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-select {
+            appearance: none;
+            background: transparent;
+            border: none;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--pamesa-dark);
+            width: 100%;
+            padding-right: 20px;
+            outline: none;
+        }
+
+        /* TARJETAS DE ARTÍCULO */
+        .art-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            overflow: hidden;
+            margin-bottom: 12px;
+            height: 110px;
+        }
+
+        .art-thumb {
+            width: 110px;
+            height: 100%;
+            flex-shrink: 0;
+            background: #f8fafc;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid #f1f5f9;
+        }
+
+        .art-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .art-content {
+            flex: 1;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* BADGES */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-right: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-tech {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .badge-price {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        /* PACKING CARD REFINADA */
+        .packing-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .packing-header {
+            background: #f8fafc;
+            padding: 10px 16px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .packing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: #e2e8f0;
+            padding: 1px 0 0 0;
+        }
+
+        .packing-cell {
+            background: white;
+            padding: 10px 4px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pack-label {
+            font-size: 0.55rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .pack-value {
+            font-size: 0.8rem;
+            color: var(--pamesa-dark);
+            font-weight: 600;
+        }
+
+        /* SEPARADOR DE FORMATO */
+        .format-divider {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 24px 0 12px 0;
+            padding: 0 4px;
+        }
+
+        .format-line {
+            flex: 1;
+            height: 1px;
+            background: #cbd5e1;
+        }
+
+        .format-title {
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--pamesa-red);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* --- ESTILOS DEL ESCÁNER (AÑADIDOS) --- */
         #scanner-modal {
             position: fixed;
             inset: 0;
@@ -59,248 +263,8 @@
             text-align: center;
             padding: 0 20px;
         }
-    </style>
-    /* SISTEMA DE DISEÑO PAMESA MOBILE */
-    :root {
-    --pamesa-red: #ce1719;
-    --pamesa-dark: #1e293b;
-    --pamesa-gray: #64748b;
-    --bg-page: #f8fafc;
-    }
 
-    body {
-    font-family: 'Montserrat', sans-serif;
-    background-color: var(--bg-page);
-    color: var(--pamesa-dark);
-    -webkit-tap-highlight-color: transparent;
-    overflow-x: hidden;
-    }
-
-    /* Utilidades */
-    .safe-area-bottom {
-    padding-bottom: env(safe-area-inset-bottom, 20px);
-    }
-
-    /* Scroll Margin para que el header fijo no tape el título al saltar */
-    .scroll-target {
-    scroll-margin-top: 130px;
-    }
-
-    /* LOADER */
-    #loader-screen {
-    position: fixed;
-    inset: 0;
-    background: white;
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: opacity 0.3s ease;
-    }
-
-    /* HEADER & NAV */
-    .sticky-header {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid #e2e8f0;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
-    }
-
-    .nav-select-container {
-    position: relative;
-    background: #f1f5f9;
-    border-radius: 8px;
-    padding: 0 10px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    }
-
-    .nav-select {
-    appearance: none;
-    background: transparent;
-    border: none;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--pamesa-dark);
-    width: 100%;
-    padding-right: 20px;
-    outline: none;
-    }
-
-    /* TARJETAS DE ARTÍCULO */
-    .art-card {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    border: 1px solid #e2e8f0;
-    display: flex;
-    overflow: hidden;
-    margin-bottom: 12px;
-    height: 110px;
-    /* Altura fija para consistencia */
-    }
-
-    .art-thumb {
-    width: 110px;
-    height: 100%;
-    flex-shrink: 0;
-    background: #f8fafc;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-right: 1px solid #f1f5f9;
-    }
-
-    .art-thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    }
-
-    .art-content {
-    flex: 1;
-    padding: 10px 12px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    }
-
-    /* BADGES */
-    .badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 0.65rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    margin-right: 4px;
-    letter-spacing: 0.5px;
-    }
-
-    .badge-tech {
-    background: #f0fdf4;
-    color: #166534;
-    border: 1px solid #bbf7d0;
-    }
-
-    .badge-price {
-    background: #fef2f2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
-    }
-
-    /* PACKING CARD REFINADA */
-    .packing-card {
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    margin-bottom: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-    }
-
-    .packing-header {
-    background: #f8fafc;
-    padding: 10px 16px;
-    border-bottom: 1px solid #e2e8f0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    }
-
-    .packing-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    /* 3 columnas */
-    gap: 1px;
-    background: #e2e8f0;
-    /* Color de las líneas del grid */
-    padding: 1px 0 0 0;
-    /* Borde superior */
-    }
-
-    .packing-cell {
-    background: white;
-    padding: 10px 4px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    }
-
-    .pack-label {
-    font-size: 0.55rem;
-    color: #94a3b8;
-    text-transform: uppercase;
-    font-weight: 700;
-    margin-bottom: 2px;
-    }
-
-    .pack-value {
-    font-size: 0.8rem;
-    color: var(--pamesa-dark);
-    font-weight: 600;
-    }
-
-    /* SEPARADOR DE FORMATO */
-    .format-divider {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 24px 0 12px 0;
-    padding: 0 4px;
-    }
-
-    .format-line {
-    flex: 1;
-    height: 1px;
-    background: #cbd5e1;
-    }
-
-    .format-title {
-    font-size: 0.8rem;
-    font-weight: 800;
-    color: var(--pamesa-red);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    }
-
-    /* MODAL IMAGEN */
-    #img-modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.95);
-    z-index: 200;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    }
-
-    .modal-active {
-    display: flex !important;
-    animation: fadeIn 0.2s ease-out;
-    }
-
-    @keyframes fadeIn {
-    from {
-    opacity: 0;
-    }
-
-    to {
-    opacity: 1;
-    }
-    }
-    </style>
-    <style>
         /* --- NUEVAS MEJORAS (20MM, EXT, DUP) --- */
-
         /* 1. Availability Badges (Hero) */
         .avail-badge {
             display: inline-flex;
@@ -339,11 +303,8 @@
             gap: 8px;
             overflow-x: auto;
             padding: 0 16px 12px 16px;
-            /* Padding bottom para scrollbar invisible */
             scrollbar-width: none;
-            /* Firefox */
             -ms-overflow-style: none;
-            /* IE 10+ */
         }
 
         .filter-scroll::-webkit-scrollbar {
@@ -372,38 +333,15 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        /* Variantes activas específicas */
-        .filter-chip.active-20mm {
-            background: #000;
-            border-color: #000;
-        }
-
-        .filter-chip.active-ext {
-            background: #ea580c;
-            border-color: #ea580c;
-        }
-
-        .filter-chip.active-dup {
-            background: #7c3aed;
-            border-color: #7c3aed;
-        }
+        .filter-chip.active-20mm { background: #000; border-color: #000; }
+        .filter-chip.active-ext { background: #ea580c; border-color: #ea580c; }
+        .filter-chip.active-dup { background: #7c3aed; border-color: #7c3aed; }
 
         /* 3. Card Highlighting */
-        .art-card-20mm {
-            border-left: 5px solid #000;
-        }
+        .art-card-20mm { border-left: 5px solid #000; }
+        .art-card-ext { border-left: 5px solid #ea580c; }
+        .art-card-dup { border-left: 5px solid #7c3aed; }
 
-        .art-card-ext {
-            border-left: 5px solid #ea580c;
-            /* Naranja fuerte */
-        }
-
-        .art-card-dup {
-            border-left: 5px solid #7c3aed;
-            /* Violeta */
-        }
-
-        /* Iconos especiales en tarjeta */
         .card-spec-icon {
             display: inline-flex;
             align-items: center;
@@ -414,35 +352,13 @@
             margin-right: 4px;
         }
 
-        .icon-20mm {
-            background: #000;
-            color: #fff;
-            font-size: 9px;
-            font-weight: 900;
-        }
+        .icon-20mm { background: #000; color: #fff; font-size: 9px; font-weight: 900; }
+        .icon-ext { color: #ea580c; }
+        .icon-dup { color: #7c3aed; }
 
-        .icon-ext {
-            color: #ea580c;
-        }
-
-        .icon-dup {
-            color: #7c3aed;
-        }
-
-        /* Separador 20MM destacado */
-        .format-divider.is-20mm .format-title {
-            color: #000;
-            font-size: 0.9rem;
-        }
-
-        .format-divider.is-20mm .format-line {
-            background: #000;
-            height: 2px;
-        }
-
-        .format-divider.is-20mm i {
-            color: #000;
-        }
+        .format-divider.is-20mm .format-title { color: #000; font-size: 0.9rem; }
+        .format-divider.is-20mm .format-line { background: #000; height: 2px; }
+        .format-divider.is-20mm i { color: #000; }
 
         /* --- NUEVO MODAL DE PRODUCTO (FICHA TÉCNICA) --- */
         #product-modal {
@@ -453,7 +369,6 @@
             z-index: 300;
             display: none;
             align-items: flex-end;
-            /* En móvil sale desde abajo */
             justify-content: center;
         }
 
@@ -468,7 +383,6 @@
             width: 100%;
             max-width: 600px;
             height: 95vh;
-            /* Altura casi completa en móvil */
             max-height: 95vh;
             border-radius: 20px 20px 0 0;
             overflow-y: auto;
@@ -487,27 +401,8 @@
             }
         }
 
-        @keyframes slideUp {
-            from {
-                transform: translateY(100%);
-            }
-
-            to {
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes zoomIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        @keyframes zoomIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
         .pm-header {
             position: relative;
@@ -517,7 +412,6 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            /* Evitar que se aplaste */
         }
 
         .pm-img {
@@ -525,7 +419,6 @@
             max-width: 100%;
             height: auto;
             max-height: 35vh;
-            /* Limitar altura para no ocupar todo */
             object-fit: contain;
             display: block;
             margin: 0 auto;
@@ -542,93 +435,19 @@
             z-index: 10;
         }
 
-        .pm-body {
-            padding: 20px;
-        }
-
-        .pm-title-block {
-            margin-bottom: 20px;
-            border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 16px;
-        }
-
-        .pm-title {
-            font-size: 1.25rem;
-            font-weight: 900;
-            color: var(--pamesa-dark);
-            line-height: 1.2;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-        }
-
-        .pm-subtitle {
-            font-size: 0.85rem;
-            color: #64748b;
-            font-weight: 500;
-        }
-
-        .pm-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px 16px;
-            margin-bottom: 24px;
-        }
-
-        .pm-item {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .pm-label {
-            font-size: 0.65rem;
-            color: #94a3b8;
-            font-weight: 700;
-            text-transform: uppercase;
-            margin-bottom: 2px;
-        }
-
-        .pm-val {
-            font-size: 0.85rem;
-            color: var(--pamesa-dark);
-            font-weight: 600;
-        }
-
-        .pm-section-title {
-            font-size: 0.75rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            color: var(--pamesa-red);
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .pm-packing-box {
-            background: #f1f5f9;
-            border-radius: 12px;
-            padding: 12px;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-        }
-
-        .pm-pack-item {
-            text-align: center;
-        }
-
-        .pm-pack-val {
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: var(--pamesa-dark);
-        }
-
-        .pm-pack-lbl {
-            font-size: 0.6rem;
-            color: #64748b;
-            text-transform: uppercase;
-            font-weight: 600;
-        }
+        .pm-body { padding: 20px; }
+        .pm-title-block { margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px; }
+        .pm-title { font-size: 1.25rem; font-weight: 900; color: var(--pamesa-dark); line-height: 1.2; margin-bottom: 4px; text-transform: uppercase; }
+        .pm-subtitle { font-size: 0.85rem; color: #64748b; font-weight: 500; }
+        .pm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; margin-bottom: 24px; }
+        .pm-item { display: flex; flex-direction: column; }
+        .pm-label { font-size: 0.65rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; }
+        .pm-val { font-size: 0.85rem; color: var(--pamesa-dark); font-weight: 600; }
+        .pm-section-title { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--pamesa-red); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+        .pm-packing-box { background: #f1f5f9; border-radius: 12px; padding: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .pm-pack-item { text-align: center; }
+        .pm-pack-val { font-size: 0.9rem; font-weight: 700; color: var(--pamesa-dark); }
+        .pm-pack-lbl { font-size: 0.6rem; color: #64748b; text-transform: uppercase; font-weight: 600; }
     </style>
 </head>
 
@@ -662,7 +481,7 @@
             <div class="flex items-center justify-between px-4 h-[60px]">
                 <div class="flex items-center gap-3">
                     <img src="LOGO-PAMESA.jpg" alt="Pamesa" class="h-6 w-auto">
-                    <!-- BOTÓN ESCÁNER -->
+                    <!-- BOTÓN ESCÁNER AÑADIDO -->
                     <button onclick="startScan()"
                         class="bg-gray-900 text-white p-2 rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform">
                         <i data-lucide="scan-line" class="w-4 h-4"></i>
@@ -673,19 +492,6 @@
                     <div id="header-serie-name" class="text-base font-black text-gray-900 leading-none tracking-tight">
                         ...</div>
                 </div>
-            </div>
-
-            <!-- ... (Resto del Header) ... -->
-
-            <!-- ... (Resto del HTML) ... -->
-
-            <!-- MODAL ESCÁNER QR -->
-            <div id="scanner-modal">
-                <button class="scan-close-btn" onclick="stopScan()">
-                    <i data-lucide="x" class="w-6 h-6"></i>
-                </button>
-                <div id="reader"></div>
-                <p class="scan-instr">Enfoca el código QR de la serie</p>
             </div>
 
             <!-- Navegación de Formatos -->
@@ -765,6 +571,15 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- MODAL ESCÁNER QR (AÑADIDO) -->
+    <div id="scanner-modal">
+        <button class="scan-close-btn" onclick="stopScan()">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+        <div id="reader"></div>
+        <p class="scan-instr">Enfoca el código QR de la serie</p>
     </div>
 
     <!-- MODAL DE PRODUCTO (FICHA TÉCNICA) -->
@@ -1086,11 +901,6 @@
             let html = '';
 
             rows.forEach((row, index) => {
-                // Necesitamos el índice REAL en appData.serieRows para abrir el modal correcto
-                // Pero como hemos filtrado y ordenado, 'index' aquí no coincide con el array original.
-                // Solución: Pasamos el ID del artículo o buscamos el objeto entero.
-                // Mejor: Pasamos el ID único (Id._Articulo) a la función openProductDetail.
-
                 const medida = cleanVal(row[COLS.MEDIDA]);
                 const espesor = cleanVal(row[COLS.ESPESOR]);
                 const formatKey = `${medida}_${espesor}`;
@@ -1248,7 +1058,6 @@
 
             let html = '';
             uniquePacks.forEach(p => {
-                // MEJORA: Título unificado con Espesor
                 html += `
                 <div class="packing-card">
                     <div class="packing-header">
