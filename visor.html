@@ -9,7 +9,8 @@
     <!-- FUENTES CORPORATIVAS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
     <!-- LIBRERÍAS EXTERNAS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -34,10 +35,14 @@
         }
 
         /* Utilidades */
-        .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 20px); }
-        
+        .safe-area-bottom {
+            padding-bottom: env(safe-area-inset-bottom, 20px);
+        }
+
         /* Scroll Margin para que el header fijo no tape el título al saltar */
-        .scroll-target { scroll-margin-top: 130px; }
+        .scroll-target {
+            scroll-margin-top: 130px;
+        }
 
         /* LOADER */
         #loader-screen {
@@ -86,12 +91,13 @@
         .art-card {
             background: white;
             border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
             border: 1px solid #e2e8f0;
             display: flex;
             overflow: hidden;
             margin-bottom: 12px;
-            height: 110px; /* Altura fija para consistencia */
+            height: 110px;
+            /* Altura fija para consistencia */
         }
 
         .art-thumb {
@@ -132,8 +138,18 @@
             margin-right: 4px;
             letter-spacing: 0.5px;
         }
-        .badge-tech { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
-        .badge-price { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+        .badge-tech {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .badge-price {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
 
         /* PACKING CARD REFINADA */
         .packing-card {
@@ -142,7 +158,7 @@
             border-radius: 12px;
             margin-bottom: 12px;
             overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
         }
 
         .packing-header {
@@ -156,10 +172,13 @@
 
         .packing-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 3 columnas */
+            grid-template-columns: repeat(3, 1fr);
+            /* 3 columnas */
             gap: 1px;
-            background: #e2e8f0; /* Color de las líneas del grid */
-            padding: 1px 0 0 0; /* Borde superior */
+            background: #e2e8f0;
+            /* Color de las líneas del grid */
+            padding: 1px 0 0 0;
+            /* Borde superior */
         }
 
         .packing-cell {
@@ -172,8 +191,19 @@
             justify-content: center;
         }
 
-        .pack-label { font-size: 0.55rem; color: #94a3b8; text-transform: uppercase; font-weight: 700; margin-bottom: 2px; }
-        .pack-value { font-size: 0.8rem; color: var(--pamesa-dark); font-weight: 600; }
+        .pack-label {
+            font-size: 0.55rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .pack-value {
+            font-size: 0.8rem;
+            color: var(--pamesa-dark);
+            font-weight: 600;
+        }
 
         /* SEPARADOR DE FORMATO */
         .format-divider {
@@ -183,14 +213,26 @@
             margin: 24px 0 12px 0;
             padding: 0 4px;
         }
-        .format-line { flex: 1; height: 1px; background: #cbd5e1; }
-        .format-title { font-size: 0.8rem; font-weight: 800; color: var(--pamesa-red); text-transform: uppercase; letter-spacing: 0.05em; }
+
+        .format-line {
+            flex: 1;
+            height: 1px;
+            background: #cbd5e1;
+        }
+
+        .format-title {
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--pamesa-red);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
 
         /* MODAL IMAGEN */
         #img-modal {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.95);
+            background: rgba(0, 0, 0, 0.95);
             z-index: 200;
             display: none;
             flex-direction: column;
@@ -198,9 +240,344 @@
             justify-content: center;
             padding: 20px;
         }
-        .modal-active { display: flex !important; animation: fadeIn 0.2s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+        .modal-active {
+            display: flex !important;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+    <style>
+        /* --- NUEVAS MEJORAS (20MM, EXT, DUP) --- */
+
+        /* 1. Availability Badges (Hero) */
+        .avail-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-right: 6px;
+            border: 1px solid transparent;
+        }
+
+        .avail-20mm {
+            background: #111;
+            color: #fff;
+            border-color: #000;
+        }
+
+        .avail-ext {
+            background: #fff7ed;
+            color: #c2410c;
+            border-color: #ffedd5;
+        }
+
+        .avail-dup {
+            background: #f5f3ff;
+            color: #7c3aed;
+            border-color: #ddd6fe;
+        }
+
+        /* 2. Filter Chips */
+        .filter-scroll {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 0 16px 12px 16px;
+            /* Padding bottom para scrollbar invisible */
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE 10+ */
+        }
+
+        .filter-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .filter-chip {
+            flex-shrink: 0;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #64748b;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-chip.active {
+            background: var(--pamesa-dark);
+            color: white;
+            border-color: var(--pamesa-dark);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Variantes activas específicas */
+        .filter-chip.active-20mm {
+            background: #000;
+            border-color: #000;
+        }
+
+        .filter-chip.active-ext {
+            background: #ea580c;
+            border-color: #ea580c;
+        }
+
+        .filter-chip.active-dup {
+            background: #7c3aed;
+            border-color: #7c3aed;
+        }
+
+        /* 3. Card Highlighting */
+        .art-card-20mm {
+            border-left: 5px solid #000;
+        }
+
+        .art-card-ext {
+            border-left: 5px solid #ea580c;
+            /* Naranja fuerte */
+        }
+
+        .art-card-dup {
+            border-left: 5px solid #7c3aed;
+            /* Violeta */
+        }
+
+        /* Iconos especiales en tarjeta */
+        .card-spec-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            margin-right: 4px;
+        }
+
+        .icon-20mm {
+            background: #000;
+            color: #fff;
+            font-size: 9px;
+            font-weight: 900;
+        }
+
+        .icon-ext {
+            color: #ea580c;
+        }
+
+        .icon-dup {
+            color: #7c3aed;
+        }
+
+        /* Separador 20MM destacado */
+        .format-divider.is-20mm .format-title {
+            color: #000;
+            font-size: 0.9rem;
+        }
+
+        .format-divider.is-20mm .format-line {
+            background: #000;
+            height: 2px;
+        }
+
+        .format-divider.is-20mm i {
+            color: #000;
+        }
+
+        /* --- NUEVO MODAL DE PRODUCTO (FICHA TÉCNICA) --- */
+        #product-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 300;
+            display: none;
+            align-items: flex-end;
+            /* En móvil sale desde abajo */
+            justify-content: center;
+        }
+
+        @media (min-width: 768px) {
+            #product-modal {
+                align-items: center;
+            }
+        }
+
+        .pm-content {
+            background: #fff;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            border-radius: 20px 20px 0 0;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUp 0.3s ease-out;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 768px) {
+            .pm-content {
+                border-radius: 20px;
+                max-height: 85vh;
+                animation: zoomIn 0.2s ease-out;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes zoomIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .pm-header {
+            position: relative;
+            background: #f8fafc;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pm-img {
+            width: 100%;
+            height: 250px;
+            object-fit: contain;
+            background: #fff;
+        }
+
+        .pm-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border-radius: 50%;
+            padding: 8px;
+            z-index: 10;
+        }
+
+        .pm-body {
+            padding: 20px;
+        }
+
+        .pm-title-block {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 16px;
+        }
+
+        .pm-title {
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: var(--pamesa-dark);
+            line-height: 1.2;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .pm-subtitle {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .pm-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 16px;
+            margin-bottom: 24px;
+        }
+
+        .pm-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pm-label {
+            font-size: 0.65rem;
+            color: #94a3b8;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .pm-val {
+            font-size: 0.85rem;
+            color: var(--pamesa-dark);
+            font-weight: 600;
+        }
+
+        .pm-section-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--pamesa-red);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .pm-packing-box {
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 12px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .pm-pack-item {
+            text-align: center;
+        }
+
+        .pm-pack-val {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--pamesa-dark);
+        }
+
+        .pm-pack-lbl {
+            font-size: 0.6rem;
+            color: #64748b;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
     </style>
 </head>
 
@@ -213,18 +590,21 @@
     </div>
 
     <!-- 2. PANTALLA DE ERROR -->
-    <div id="error-screen" class="hidden fixed inset-0 bg-white z-50 flex flex-col items-center justify-center p-8 text-center">
+    <div id="error-screen"
+        class="hidden fixed inset-0 bg-white z-50 flex flex-col items-center justify-center p-8 text-center">
         <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4">
             <i data-lucide="scan-line" class="w-8 h-8 text-red-500"></i>
         </div>
         <h2 class="text-xl font-bold text-gray-800 mb-2">Serie no encontrada</h2>
-        <p class="text-sm text-gray-500 mb-6 max-w-xs mx-auto">El código QR no contiene información válida o la serie no existe en la base de datos.</p>
-        <button onclick="window.location.reload()" class="bg-gray-900 text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg">Reintentar</button>
+        <p class="text-sm text-gray-500 mb-6 max-w-xs mx-auto">El código QR no contiene información válida o la serie no
+            existe en la base de datos.</p>
+        <button onclick="window.location.reload()"
+            class="bg-gray-900 text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg">Reintentar</button>
     </div>
 
     <!-- 3. APP PRINCIPAL -->
     <div id="app" class="hidden pb-12">
-        
+
         <!-- HEADER FIJO CON NAVEGACIÓN -->
         <header class="fixed top-0 left-0 right-0 z-40 sticky-header h-[110px]">
             <!-- Top Bar -->
@@ -232,7 +612,8 @@
                 <img src="LOGO-PAMESA.jpg" alt="Pamesa" class="h-6 w-auto">
                 <div class="text-right">
                     <div class="text-[9px] text-gray-400 uppercase font-bold tracking-widest">SERIE</div>
-                    <div id="header-serie-name" class="text-base font-black text-gray-900 leading-none tracking-tight">...</div>
+                    <div id="header-serie-name" class="text-base font-black text-gray-900 leading-none tracking-tight">
+                        ...</div>
                 </div>
             </div>
 
@@ -244,7 +625,8 @@
                         <option value="">Ver todos los formatos...</option>
                         <!-- JS Rellena esto -->
                     </select>
-                    <i data-lucide="chevron-down" class="w-3 h-3 text-gray-400 pointer-events-none absolute right-2"></i>
+                    <i data-lucide="chevron-down"
+                        class="w-3 h-3 text-gray-400 pointer-events-none absolute right-2"></i>
                 </div>
             </div>
         </header>
@@ -260,12 +642,13 @@
                     <div id="hero-subtitle" class="text-xs font-bold text-gray-400 uppercase tracking-wider mt-1"></div>
                 </div>
                 <!-- Badge Variación Grande -->
-                <div id="var-badge-container" class="flex flex-col items-center justify-center w-10 h-10 rounded border border-gray-200 bg-gray-50">
+                <div id="var-badge-container"
+                    class="flex flex-col items-center justify-center w-10 h-10 rounded border border-gray-200 bg-gray-50">
                     <span id="var-code" class="text-sm font-black text-gray-900">-</span>
                     <span class="text-[6px] font-bold text-gray-400 uppercase">VAR</span>
                 </div>
             </div>
-            
+
             <!-- Resumen Técnico -->
             <div class="flex gap-2">
                 <div class="flex-1 bg-gray-50 rounded p-2 border border-gray-100">
@@ -281,7 +664,7 @@
 
         <!-- CONTENIDO PRINCIPAL -->
         <main class="px-4">
-            
+
             <!-- SECCIÓN ARTÍCULOS -->
             <div id="articles-container" class="mb-10">
                 <!-- Inyectado por JS -->
@@ -293,7 +676,7 @@
                     <i data-lucide="box" class="w-4 h-4 text-red-600"></i>
                     <h3 class="text-xs font-black text-gray-900 uppercase tracking-widest">Logística & Packing</h3>
                 </div>
-                
+
                 <div id="packing-container">
                     <!-- Inyectado por JS -->
                 </div>
@@ -306,23 +689,91 @@
         </main>
     </div>
 
-    <!-- MODAL IMAGEN (ZOOM) -->
-    <div id="img-modal" onclick="closeImage()">
-        <button class="absolute top-4 right-4 text-white/50 hover:text-white p-2">
-            <i data-lucide="x" class="w-8 h-8"></i>
-        </button>
-        <img id="modal-img-tag" src="" class="max-w-full max-h-[85vh] object-contain shadow-2xl rounded-sm" alt="Zoom">
-        <div class="mt-4 text-white/70 text-xs font-mono uppercase tracking-widest">Toca para cerrar</div>
+    <!-- MODAL DE PRODUCTO (FICHA TÉCNICA) -->
+    <div id="product-modal" onclick="closeProductDetail(event)">
+        <div class="pm-content" onclick="event.stopPropagation()">
+            <button class="pm-close" onclick="closeProductDetail()">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="pm-header">
+                <img id="pm-img" src="" class="pm-img" alt="Producto">
+            </div>
+
+            <div class="pm-body">
+                <div class="pm-title-block">
+                    <h2 id="pm-title" class="pm-title">NOMBRE PRODUCTO</h2>
+                    <div class="flex justify-between items-end">
+                        <p id="pm-subtitle" class="pm-subtitle">Color • Acabado</p>
+                        <span id="pm-price" class="badge badge-price text-sm">GRUPO</span>
+                    </div>
+                </div>
+
+                <!-- Datos Técnicos -->
+                <div class="pm-section-title"><i data-lucide="ruler" class="w-3 h-3"></i> Especificaciones</div>
+                <div class="pm-grid">
+                    <div class="pm-item"><span class="pm-label">Serie</span><span id="pm-serie" class="pm-val">-</span>
+                    </div>
+                    <div class="pm-item"><span class="pm-label">Colección</span><span id="pm-coll"
+                            class="pm-val">-</span></div>
+                    <div class="pm-item"><span class="pm-label">Formato</span><span id="pm-fmt" class="pm-val">-</span>
+                    </div>
+                    <div class="pm-item"><span class="pm-label">Espesor</span><span id="pm-thick"
+                            class="pm-val">-</span></div>
+                    <div class="pm-item"><span class="pm-label">Tipología</span><span id="pm-type"
+                            class="pm-val">-</span></div>
+                    <div class="pm-item"><span class="pm-label">Uso</span><span id="pm-use" class="pm-val">-</span>
+                    </div>
+                    <div class="pm-item"><span class="pm-label">Variación</span><span id="pm-var"
+                            class="pm-val">-</span></div>
+                    <div class="pm-item"><span class="pm-label">ID Art.</span><span id="pm-id"
+                            class="pm-val font-mono text-gray-400">-</span></div>
+                    <div class="pm-item"><span class="pm-label">Antideslizante (R)</span><span id="pm-r"
+                            class="pm-val">-</span></div>
+                    <div class="pm-item"><span class="pm-label">Clase (CTE)</span><span id="pm-cte"
+                            class="pm-val">-</span></div>
+                </div>
+
+                <!-- Datos Packing Específicos -->
+                <div class="pm-section-title"><i data-lucide="box" class="w-3 h-3"></i> Packing de este artículo</div>
+                <div class="pm-packing-box">
+                    <div class="pm-pack-item">
+                        <div id="pm-pz-box" class="pm-pack-val">-</div>
+                        <div class="pm-pack-lbl">Pz/Caja</div>
+                    </div>
+                    <div class="pm-pack-item">
+                        <div id="pm-m2-box" class="pm-pack-val">-</div>
+                        <div class="pm-pack-lbl">M2/Caja</div>
+                    </div>
+                    <div class="pm-pack-item">
+                        <div id="pm-kg-box" class="pm-pack-val">-</div>
+                        <div class="pm-pack-lbl">Kg/Caja</div>
+                    </div>
+                    <div class="pm-pack-item">
+                        <div id="pm-box-pal" class="pm-pack-val">-</div>
+                        <div class="pm-pack-lbl">Cj/Pallet</div>
+                    </div>
+                    <div class="pm-pack-item">
+                        <div id="pm-m2-pal" class="pm-pack-val">-</div>
+                        <div class="pm-pack-lbl">M2/Pallet</div>
+                    </div>
+                    <div class="pm-pack-item">
+                        <div id="pm-kg-pal" class="pm-pack-val">-</div>
+                        <div class="pm-pack-lbl">Kg/Pallet</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
         // CONFIGURACIÓN GLOBAL
         const CONFIG = {
-            csvUrl: './BD-21-11-2025.csv', 
+            csvUrl: './BD-21-11-2025.csv',
             encoding: 'ISO-8859-1'
         };
 
-        // MAPEO DE COLUMNAS (Asegurado con tu feedback)
+        // MAPEO DE COLUMNAS
         const COLS = {
             SERIE: 'Serie_web',
             COLECCION: 'Coleccion_web',
@@ -339,22 +790,26 @@
             VARIACION: 'Variacion_cromatica',
             CLASE: 'UNE_41901:2017_EX',
             R: 'Deslizamiento_DIN_51130',
-            AREA: 'area', // Para ordenar
-
+            AREA: 'area',
             // PACKING
             PZ_CAJA: 'Pz/Caja',
             M2_CAJA: 'M2/Caja',
             KG_CAJA: 'Kg/Caja',
-            CJ_PALLET: 'Cj/Pallet', // A veces es Cj/Pallet o Cj/Pal
+            CJ_PALLET: 'Cj/Pallet',
             M2_PALLET: 'M2/Pallet',
             KG_PALLET: 'Kg/Pallet'
         };
 
-        let appData = { 
-            serieRows: [], 
-            serieName: '', 
+        let appData = {
+            serieRows: [],
+            serieName: '',
             collName: '',
-            formats: [] 
+            // Flags de disponibilidad
+            has20MM: false,
+            hasEXT: false,
+            hasDUP: false,
+            // Estado filtro
+            currentFilter: 'ALL' // ALL, 20MM, EXT, DUP
         };
 
         // INICIALIZACIÓN
@@ -363,9 +818,8 @@
         });
 
         function initApp() {
-            // Leer Parametro URL
             const params = new URLSearchParams(window.location.search);
-            const targetSerie = params.get('s') || params.get('serie'); 
+            const targetSerie = params.get('s') || params.get('serie');
 
             if (!targetSerie) {
                 showError("No se ha especificado ninguna serie.");
@@ -378,22 +832,22 @@
         function loadCSV(filterSerie) {
             fetch(CONFIG.csvUrl)
                 .then(r => {
-                    if(!r.ok) throw new Error("Archivo CSV no encontrado");
+                    if (!r.ok) throw new Error("Archivo CSV no encontrado");
                     return r.arrayBuffer();
                 })
                 .then(buffer => {
                     const decoder = new TextDecoder(CONFIG.encoding);
                     const csvText = decoder.decode(buffer);
-                    
+
                     Papa.parse(csvText, {
                         header: true,
                         delimiter: ";",
                         skipEmptyLines: true,
-                        complete: function(results) {
+                        complete: function (results) {
                             processData(results.data, filterSerie);
                         },
-                        error: function(err) { 
-                            showError("Error al leer datos CSV"); 
+                        error: function (err) {
+                            showError("Error al leer datos CSV");
                         }
                     });
                 })
@@ -405,8 +859,8 @@
 
         function processData(allRows, targetName) {
             const targetUpper = targetName.toUpperCase();
-            
-            // Filtrar Serie
+
+            // 1. Filtrar Serie
             appData.serieRows = allRows.filter(r => {
                 const s = r[COLS.SERIE];
                 return s && s.toUpperCase() === targetUpper;
@@ -417,16 +871,27 @@
                 return;
             }
 
+            // 2. Analizar Disponibilidad (20MM, EXT, DUP)
+            appData.serieRows.forEach(r => {
+                const esp = cleanVal(r[COLS.ESPESOR]);
+                const nom = cleanVal(r[COLS.NOMBRE]).toUpperCase();
+
+                if (esp === '20') appData.has20MM = true;
+                if (nom.includes('EXT') || nom.includes('EXTERIOR')) appData.hasEXT = true;
+                if (nom.includes('DUP') || nom.includes('DUPLO')) appData.hasDUP = true;
+            });
+
             // Datos Base
             const first = appData.serieRows[0];
             appData.serieName = first[COLS.SERIE];
             appData.collName = first[COLS.COLECCION];
 
-            // Renderizado
+            // Renderizado Inicial
             renderHeader(first);
+            renderFilters(); // Nuevo: Renderizar filtros si aplica
             renderArticles();
             renderPacking();
-            
+
             // Finalizar carga
             document.getElementById('loader-screen').classList.add('opacity-0', 'pointer-events-none');
             document.getElementById('app').classList.remove('hidden');
@@ -434,33 +899,98 @@
         }
 
         function renderHeader(firstRow) {
-            // Títulos
             document.getElementById('header-serie-name').innerText = appData.serieName;
             document.getElementById('hero-title').innerText = appData.serieName;
             document.getElementById('hero-subtitle').innerText = appData.collName || 'COLECCIÓN';
-            
-            // Metadatos
+
             document.getElementById('meta-tipo').innerText = cleanVal(firstRow[COLS.TIPOLOGIA]) || 'No especificado';
             document.getElementById('meta-uso').innerText = cleanVal(firstRow[COLS.USO]) || 'No especificado';
-            
-            // Variación (V1, V2...)
+
+            // Variación
             const vRaw = cleanVal(firstRow[COLS.VARIACION]).toUpperCase();
             let vCode = 'V?';
-            if(vRaw.includes('UNIFORME')) vCode = 'V1';
-            else if(vRaw.includes('LEVE')) vCode = 'V2';
-            else if(vRaw.includes('MODERADA')) vCode = 'V3';
-            else if(vRaw.includes('ALTA')) vCode = 'V4';
-            
+            if (vRaw.includes('UNIFORME')) vCode = 'V1';
+            else if (vRaw.includes('LEVE')) vCode = 'V2';
+            else if (vRaw.includes('MODERADA')) vCode = 'V3';
+            else if (vRaw.includes('ALTA')) vCode = 'V4';
             document.getElementById('var-code').innerText = vCode;
+
+            // Inyectar Badges de Disponibilidad en Hero
+            const heroTitleContainer = document.getElementById('hero-title').parentNode;
+            let badgesHtml = '<div class="flex flex-wrap gap-1 mt-2">';
+
+            if (appData.has20MM) badgesHtml += `<span class="avail-badge avail-20mm"><i data-lucide="layers" class="w-3 h-3"></i> 20MM</span>`;
+            if (appData.hasEXT) badgesHtml += `<span class="avail-badge avail-ext"><i data-lucide="sun" class="w-3 h-3"></i> EXT</span>`;
+            if (appData.hasDUP) badgesHtml += `<span class="avail-badge avail-dup"><i data-lucide="copy" class="w-3 h-3"></i> DUP</span>`;
+
+            badgesHtml += '</div>';
+
+            // Insertar después del subtítulo
+            if (appData.has20MM || appData.hasEXT || appData.hasDUP) {
+                document.getElementById('hero-subtitle').insertAdjacentHTML('afterend', badgesHtml);
+            }
+        }
+
+        function renderFilters() {
+            const container = document.getElementById('filter-container');
+            const scroll = container.querySelector('.filter-scroll');
+
+            // Si no hay nada especial, ocultamos
+            if (!appData.has20MM && !appData.hasEXT && !appData.hasDUP) {
+                container.classList.add('hidden');
+                return;
+            }
+
+            container.classList.remove('hidden');
+
+            // Botones dinámicos
+            let html = `<button class="filter-chip ${appData.currentFilter === 'ALL' ? 'active' : ''}" onclick="setFilter('ALL')">Todos</button>`;
+
+            if (appData.has20MM) {
+                html += `<button class="filter-chip ${appData.currentFilter === '20MM' ? 'active active-20mm' : ''}" onclick="setFilter('20MM')">
+                            <i data-lucide="layers" class="w-3 h-3"></i> 20MM
+                         </button>`;
+            }
+            if (appData.hasEXT) {
+                html += `<button class="filter-chip ${appData.currentFilter === 'EXT' ? 'active active-ext' : ''}" onclick="setFilter('EXT')">
+                            <i data-lucide="sun" class="w-3 h-3"></i> EXT
+                         </button>`;
+            }
+            if (appData.hasDUP) {
+                html += `<button class="filter-chip ${appData.currentFilter === 'DUP' ? 'active active-dup' : ''}" onclick="setFilter('DUP')">
+                            <i data-lucide="copy" class="w-3 h-3"></i> DUP
+                         </button>`;
+            }
+
+            scroll.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        window.setFilter = function (filterType) {
+            if (appData.currentFilter === filterType) return; // No hacer nada si es el mismo
+            appData.currentFilter = filterType;
+            renderFilters(); // Actualizar estado botones
+            renderArticles(); // Refrescar lista
         }
 
         function renderArticles() {
             const container = document.getElementById('articles-container');
             const selectNav = document.getElementById('format-nav');
-            const rows = appData.serieRows;
-            const uniqueFormats = new Set();
 
-            // Ordenar por Área (Grande primero) -> Nombre
+            // 1. Filtrar filas según currentFilter
+            let rows = appData.serieRows.filter(r => {
+                if (appData.currentFilter === 'ALL') return true;
+
+                const esp = cleanVal(r[COLS.ESPESOR]);
+                const nom = cleanVal(r[COLS.NOMBRE]).toUpperCase();
+
+                if (appData.currentFilter === '20MM') return esp === '20';
+                if (appData.currentFilter === 'EXT') return nom.includes('EXT') || nom.includes('EXTERIOR');
+                if (appData.currentFilter === 'DUP') return nom.includes('DUP') || nom.includes('DUPLO');
+                return true;
+            });
+
+            // Ordenar
             rows.sort((a, b) => {
                 const areaA = parseFloat((a[COLS.AREA] || '0').replace(',', '.'));
                 const areaB = parseFloat((b[COLS.AREA] || '0').replace(',', '.'));
@@ -468,59 +998,94 @@
                 return (a[COLS.NOMBRE] || '').localeCompare(b[COLS.NOMBRE] || '');
             });
 
+            if (rows.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-gray-400 text-sm">No hay productos con este filtro.</div>`;
+                return;
+            }
+
+            const uniqueFormats = new Set();
             let lastFormatKey = '';
             let html = '';
 
-            rows.forEach(row => {
+            rows.forEach((row, index) => {
+                // Necesitamos el índice REAL en appData.serieRows para abrir el modal correcto
+                // Pero como hemos filtrado y ordenado, 'index' aquí no coincide con el array original.
+                // Solución: Pasamos el ID del artículo o buscamos el objeto entero.
+                // Mejor: Pasamos el ID único (Id._Articulo) a la función openProductDetail.
+
                 const medida = cleanVal(row[COLS.MEDIDA]);
                 const espesor = cleanVal(row[COLS.ESPESOR]);
                 const formatKey = `${medida}_${espesor}`;
                 const formatLabel = `${medida} (${espesor}mm)`;
 
-                // Separador de Formato y Lógica Navegación
+                // Detectar Propiedades Individuales
+                const is20MM = espesor === '20';
+                const nomUpper = cleanVal(row[COLS.NOMBRE]).toUpperCase();
+                const isEXT = nomUpper.includes('EXT') || nomUpper.includes('EXTERIOR');
+                const isDUP = nomUpper.includes('DUP') || nomUpper.includes('DUPLO');
+
+                // Separador
                 if (formatKey !== lastFormatKey) {
                     uniqueFormats.add(JSON.stringify({ key: formatKey, label: formatLabel }));
-                    
+
+                    // Estilo especial para separador 20MM
+                    const divClass = is20MM ? 'format-divider is-20mm' : 'format-divider';
+
                     html += `
-                        <div id="format-${formatKey}" class="format-divider scroll-target">
-                            <i data-lucide="ruler" class="w-4 h-4 text-red-600"></i>
+                        <div id="format-${formatKey}" class="${divClass} scroll-target">
+                            <i data-lucide="${is20MM ? 'layers' : 'ruler'}" class="w-4 h-4 ${is20MM ? '' : 'text-red-600'}"></i>
                             <span class="format-title">${medida}</span>
-                            <span class="text-[10px] font-bold text-gray-400 bg-gray-100 px-1 rounded ml-1">${espesor}mm</span>
+                            <span class="text-[10px] font-bold ${is20MM ? 'bg-black text-white' : 'bg-gray-100 text-gray-400'} px-1 rounded ml-1">${espesor}mm</span>
                             <div class="format-line"></div>
                         </div>
                     `;
                     lastFormatKey = formatKey;
                 }
 
-                // Datos Artículo
+                // Datos
                 const img = row[COLS.IMAGEN];
                 const hasImg = img && img.length > 5;
                 const nombre = cleanVal(row[COLS.NOMBRE]);
                 const color = cleanVal(row[COLS.COLOR]);
                 const acabado = cleanVal(row[COLS.ACABADO]);
                 const precio = cleanVal(row[COLS.PRECIO]);
-                const id = row[COLS.ID];
-                
-                // Badges
+                const id = row[COLS.ID]; // ID Único
+
+                // Badges Tech
                 let badges = '';
                 const cte = cleanVal(row[COLS.CLASE]);
                 const r = cleanVal(row[COLS.R]);
-                if(cte) badges += `<span class="badge badge-tech">CTE ${cte}</span>`;
-                if(r) badges += `<span class="badge badge-tech">R${r.replace(/R/i,'')}</span>`;
-                if(precio) badges += `<span class="badge badge-price">${precio}</span>`;
+                if (cte) badges += `<span class="badge badge-tech">CTE ${cte}</span>`;
+                if (r) badges += `<span class="badge badge-tech">R${r.replace(/R/i, '')}</span>`;
+                if (precio) badges += `<span class="badge badge-price">${precio}</span>`;
 
+                // Clases Card
+                let cardClasses = 'art-card';
+                if (is20MM) cardClasses += ' art-card-20mm';
+                else if (isEXT) cardClasses += ' art-card-ext';
+                else if (isDUP) cardClasses += ' art-card-dup';
+
+                // Icono Especial junto al nombre
+                let namePrefix = '';
+                if (is20MM) namePrefix = `<span class="card-spec-icon icon-20mm">20</span>`;
+                else if (isEXT) namePrefix = `<i data-lucide="sun" class="w-3 h-3 text-orange-600 mr-1 inline-block"></i>`;
+                else if (isDUP) namePrefix = `<i data-lucide="copy" class="w-3 h-3 text-violet-600 mr-1 inline-block"></i>`;
+
+                // ONCLICK: Ahora llama a openProductDetail con el ID
                 html += `
-                <div class="art-card">
-                    <div class="art-thumb" onclick="${hasImg ? `openImage('${img}')` : ''}">
-                        ${hasImg 
-                            ? `<img src="${img}" loading="lazy" alt="${nombre}">` 
-                            : `<i data-lucide="image-off" class="text-gray-300 w-6 h-6"></i>`
-                        }
-                        ${hasImg ? `<div class="absolute bottom-1 right-1 bg-black/50 p-1 rounded-full"><i data-lucide="zoom-in" class="w-3 h-3 text-white"></i></div>` : ''}
+                <div class="${cardClasses}" onclick="openProductDetail('${id}')">
+                    <div class="art-thumb">
+                        ${hasImg
+                        ? `<img src="${img}" loading="lazy" alt="${nombre}">`
+                        : `<i data-lucide="image-off" class="text-gray-300 w-6 h-6"></i>`
+                    }
+                        <div class="absolute bottom-1 right-1 bg-black/50 p-1 rounded-full"><i data-lucide="info" class="w-3 h-3 text-white"></i></div>
                     </div>
                     <div class="art-content">
                         <div>
-                            <h3 class="font-bold text-xs text-gray-900 leading-snug mb-1 uppercase">${nombre}</h3>
+                            <h3 class="font-bold text-xs text-gray-900 leading-snug mb-1 uppercase flex items-center">
+                                ${namePrefix} ${nombre}
+                            </h3>
                             <p class="text-[10px] text-gray-500 font-medium">${color} • ${acabado}</p>
                         </div>
                         <div class="flex justify-between items-end mt-2">
@@ -533,8 +1098,10 @@
             });
 
             container.innerHTML = html;
+            lucide.createIcons();
 
-            // Rellenar Navegación Desplegable
+            // Actualizar Select de Navegación
+            selectNav.innerHTML = '<option value="">Ver todos los formatos...</option>';
             uniqueFormats.forEach(json => {
                 const f = JSON.parse(json);
                 const option = document.createElement('option');
@@ -542,31 +1109,30 @@
                 option.text = f.label;
                 selectNav.appendChild(option);
             });
-
-            // Evento Navegación
-            selectNav.addEventListener('change', (e) => {
-                const targetId = e.target.value;
-                if(targetId) {
-                    const el = document.getElementById(targetId);
-                    if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
         }
 
         function renderPacking() {
             const container = document.getElementById('packing-container');
             const uniquePacks = new Map();
 
-            // Extraer packings únicos
-            appData.serieRows.forEach(r => {
+            const rowsToUse = appData.serieRows.filter(r => {
+                if (appData.currentFilter === 'ALL') return true;
+                const esp = cleanVal(r[COLS.ESPESOR]);
+                const nom = cleanVal(r[COLS.NOMBRE]).toUpperCase();
+                if (appData.currentFilter === '20MM') return esp === '20';
+                if (appData.currentFilter === 'EXT') return nom.includes('EXT') || nom.includes('EXTERIOR');
+                if (appData.currentFilter === 'DUP') return nom.includes('DUP') || nom.includes('DUPLO');
+                return true;
+            });
+
+            rowsToUse.forEach(r => {
                 const medida = cleanVal(r[COLS.MEDIDA]);
                 const espesor = cleanVal(r[COLS.ESPESOR]);
                 const key = `${medida}_${espesor}`;
 
-                // Validar que al menos haya un dato logístico
                 if (!uniquePacks.has(key) && (r[COLS.PZ_CAJA] || r[COLS.M2_PALLET])) {
                     uniquePacks.set(key, {
-                        medida, 
+                        medida,
                         espesor,
                         pz_cj: cleanVal(r[COLS.PZ_CAJA]),
                         m2_cj: cleanVal(r[COLS.M2_CAJA]),
@@ -579,17 +1145,19 @@
             });
 
             if (uniquePacks.size === 0) {
-                container.innerHTML = '<div class="text-center text-xs text-gray-400 py-4 italic">Información logística no disponible.</div>';
+                container.innerHTML = '<div class="text-center text-xs text-gray-400 py-4 italic">Información logística no disponible para esta selección.</div>';
                 return;
             }
 
             let html = '';
             uniquePacks.forEach(p => {
+                // MEJORA: Título unificado con Espesor
                 html += `
                 <div class="packing-card">
                     <div class="packing-header">
-                        <span class="text-xs font-black text-gray-800">${p.medida}</span>
-                        <span class="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded">${p.espesor}mm</span>
+                        <span class="text-xs font-black text-gray-800 uppercase tracking-wide">
+                            ${p.medida} <span class="text-gray-400 mx-1">·</span> ${p.espesor}MM
+                        </span>
                     </div>
                     <div class="packing-grid">
                         <div class="packing-cell">
@@ -623,6 +1191,71 @@
             container.innerHTML = html;
         }
 
+        // --- LÓGICA MODAL PRODUCTO ---
+        function openProductDetail(artId) {
+            // Buscar artículo por ID
+            const row = appData.serieRows.find(r => r[COLS.ID] === artId);
+            if (!row) return;
+
+            // Rellenar Campos
+            const img = row[COLS.IMAGEN];
+            const hasImg = img && img.length > 5;
+
+            // Imagen
+            const imgTag = document.getElementById('pm-img');
+            if (hasImg) {
+                imgTag.src = img;
+                imgTag.classList.remove('hidden');
+            } else {
+                imgTag.src = ''; // O placeholder
+                imgTag.classList.add('hidden');
+            }
+
+            // Textos
+            setText('pm-title', row[COLS.NOMBRE]);
+            setText('pm-subtitle', `${cleanVal(row[COLS.COLOR])} • ${cleanVal(row[COLS.ACABADO])}`);
+            setText('pm-price', cleanVal(row[COLS.PRECIO]));
+
+            // Grid Especificaciones
+            setText('pm-serie', row[COLS.SERIE]);
+            setText('pm-coll', row[COLS.COLECCION]);
+            setText('pm-fmt', row[COLS.MEDIDA]);
+            setText('pm-thick', row[COLS.ESPESOR] + ' mm');
+            setText('pm-type', row[COLS.TIPOLOGIA]);
+            setText('pm-use', row[COLS.USO]);
+            setText('pm-var', row[COLS.VARIACION]);
+            setText('pm-id', row[COLS.ID]);
+            setText('pm-r', row[COLS.R] || '-');
+            setText('pm-cte', row[COLS.CLASE] || '-');
+
+            // Packing Específico
+            setText('pm-pz-box', row[COLS.PZ_CAJA]);
+            setText('pm-m2-box', row[COLS.M2_CAJA]);
+            setText('pm-kg-box', row[COLS.KG_CAJA]);
+            setText('pm-box-pal', row[COLS.CJ_PALLET]);
+            setText('pm-m2-pal', row[COLS.M2_PALLET]);
+            setText('pm-kg-pal', row[COLS.KG_PALLET]);
+
+            // Mostrar Modal
+            const modal = document.getElementById('product-modal');
+            modal.classList.add('modal-active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeProductDetail(e) {
+            // Si viene de evento click fuera (backdrop), cerrar. Si no, cerrar directo.
+            if (e && !e.target.id.includes('product-modal')) return;
+
+            const modal = document.getElementById('product-modal');
+            modal.classList.remove('modal-active');
+            document.body.style.overflow = '';
+        }
+
+        function setText(id, val) {
+            const el = document.getElementById(id);
+            if (el) el.innerText = cleanVal(val) || '-';
+        }
+
         // UTILIDADES
         function cleanVal(val) { return (val === null || val === undefined) ? '' : String(val).trim(); }
 
@@ -630,23 +1263,10 @@
             document.getElementById('loader-screen').classList.add('hidden');
             const err = document.getElementById('error-screen');
             err.classList.remove('hidden');
-            if(msg) err.querySelector('p').innerText = msg;
-        }
-
-        function openImage(url) {
-            const modal = document.getElementById('img-modal');
-            const img = document.getElementById('modal-img-tag');
-            img.src = url;
-            modal.classList.add('modal-active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeImage() {
-            const modal = document.getElementById('img-modal');
-            modal.classList.remove('modal-active');
-            document.body.style.overflow = '';
-            setTimeout(() => img.src = '', 300);
+            if (msg) err.querySelector('p').innerText = msg;
         }
     </script>
 </body>
+
 </html>
+```
