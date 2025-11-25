@@ -256,9 +256,9 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN
+        // CONFIGURACIÓN (REVISA QUE EL NOMBRE DEL CSV SEA EXACTO MAYUS/MINUS)
         const CONFIG = {
-            csvUrl: './BD-21-11-2025.csv',
+            csvUrl: './BD-21-11-2025.csv', 
             encoding: 'ISO-8859-1'
         };
 
@@ -276,44 +276,32 @@
             TIPOLOGIA: 'Desc._Familia_web',
             USO: 'Tipo_de_uso',
             VARIACION: 'Variacion_cromatica',
-            
-            // TÉCNICOS
             CLASE: 'UNE_41901:2017_EX',
             R: 'Deslizamiento_DIN_51130',
-            
-            // PACKING
             PZ_CAJA: 'Pz/Caja',
             M2_CAJA: 'M2/Caja',
             KG_CAJA: 'Kg/Caja',
             M2_PALLET: 'M2/Pallet',
             KG_PALLET: 'Kg/Pallet',
-            AREA: 'area' // Para ordenar
+            AREA: 'area'
         };
 
-        // ESTADO
-        let appData = {
-            serieRows: [],
-            serieName: '',
-            collName: ''
-        };
+        let appData = { serieRows: [], serieName: '', collName: '' };
 
-        // INICIO
         document.addEventListener('DOMContentLoaded', () => {
+            console.log("1. App Iniciada");
             initApp();
         });
 
         function initApp() {
-            // 1. Obtener parámetros URL (ej: ?s=ATLAS)
             const params = new URLSearchParams(window.location.search);
-            const targetSerie = params.get('s') || params.get('serie'); // Acepta ?s= o ?serie=
+            const targetSerie = params.get('s') || params.get('serie'); 
             
-            // MODO DEMO: Si no hay QR, usa una serie por defecto para probar (Borrar en prod si se quiere)
-            // if (!targetSerie) {
-            //     loadCSV('ATLAS'); // Demo default
-            //     return;
-            // }
+            console.log("2. Serie buscada:", targetSerie);
 
             if (!targetSerie) {
+                console.warn("No hay parametro ?s= en la URL");
+                alert("¡Falta la serie! Añade ?s=NOMBRE_SERIE al final de la URL");
                 showError();
                 return;
             }
@@ -322,9 +310,14 @@
         }
 
         function loadCSV(filterSerie) {
+            console.log("3. Intentando cargar CSV desde:", CONFIG.csvUrl);
+            
             fetch(CONFIG.csvUrl)
                 .then(r => {
-                    if(!r.ok) throw new Error("404 CSV");
+                    if(!r.ok) {
+                        throw new Error(`Error HTTP: ${r.status} (El archivo no se encuentra)`);
+                    }
+                    console.log("4. CSV descargado correctamente. Iniciando lectura...");
                     return r.arrayBuffer();
                 })
                 .then(buffer => {
@@ -336,27 +329,35 @@
                         delimiter: ";",
                         skipEmptyLines: true,
                         complete: function(results) {
+                            console.log("5. CSV leido. Filas totales:", results.data.length);
                             processData(results.data, filterSerie);
                         },
-                        error: function() { showError(); }
+                        error: function(err) { 
+                            console.error("Error PapaParse:", err);
+                            showError(); 
+                        }
                     });
                 })
                 .catch(e => {
-                    console.error(e);
+                    console.error("❌ ERROR CRÍTICO:", e);
+                    alert("Error cargando datos: " + e.message);
                     showError();
                 });
         }
 
         function processData(allRows, targetName) {
-            // Filtrado insensible a mayúsculas
             const targetUpper = targetName.toUpperCase();
-            
+            console.log("6. Filtrando por:", targetUpper);
+
             appData.serieRows = allRows.filter(r => {
                 const s = r[COLS.SERIE];
                 return s && s.toUpperCase() === targetUpper;
             });
 
+            console.log("7. Coincidencias encontradas:", appData.serieRows.length);
+
             if (appData.serieRows.length === 0) {
+                alert(`No se ha encontrado la serie "${targetName}" en el archivo CSV.`);
                 showError();
                 return;
             }
@@ -369,20 +370,17 @@
         }
 
         function renderView() {
-            // 1. Ocultar Loader
             document.getElementById('loader-screen').classList.add('opacity-0', 'pointer-events-none');
             document.getElementById('app').classList.remove('hidden');
 
-            // 2. Cabecera
+            const first = appData.serieRows[0];
+            
             document.getElementById('header-serie-name').innerText = appData.serieName;
             document.getElementById('hero-title').innerText = appData.serieName;
             
-            // Metadatos Serie (usamos el primer registro como referencia)
-            const first = appData.serieRows[0];
             document.getElementById('meta-material').innerText = cleanVal(first[COLS.TIPOLOGIA]) || '-';
             document.getElementById('meta-uso').innerText = cleanVal(first[COLS.USO]) || '-';
             
-            // Badge Variación
             const variacion = cleanVal(first[COLS.VARIACION]);
             let vCode = '-';
             if(variacion.includes('UNIFORME')) vCode = 'V1';
@@ -391,20 +389,16 @@
             else if(variacion.includes('ALTA')) vCode = 'V4';
             document.getElementById('meta-var').innerHTML = `<span class="font-bold text-gray-900">${vCode}</span>`;
 
-            // 3. Renderizado de Artículos
             renderArticles();
-
-            // 4. Renderizado de Packing
             renderPacking();
             
-            lucide.createIcons();
+            if(window.lucide) lucide.createIcons();
         }
 
         function renderArticles() {
             const container = document.getElementById('articles-container');
             const rows = appData.serieRows;
 
-            // Ordenar: Formato Grande primero -> luego Nombre
             rows.sort((a, b) => {
                 const areaA = parseFloat((a[COLS.AREA] || '0').replace(',', '.'));
                 const areaB = parseFloat((b[COLS.AREA] || '0').replace(',', '.'));
@@ -416,22 +410,16 @@
             let html = '';
 
             rows.forEach(row => {
-                // Cabecera de Formato (Sticky)
                 const rawFormat = cleanVal(row[COLS.MEDIDA]);
                 const rawThick = cleanVal(row[COLS.ESPESOR]);
                 const formatLabel = `${rawFormat} <span class="font-normal text-gray-500 ml-1">(${rawThick}mm)</span>`;
                 const formatKey = rawFormat + rawThick;
 
                 if (formatKey !== lastFormat) {
-                    html += `
-                        <div class="format-header">
-                            <i data-lucide="ruler" class="w-4 h-4"></i> ${formatLabel}
-                        </div>
-                    `;
+                    html += `<div class="format-header"><i data-lucide="ruler" class="w-4 h-4"></i> ${formatLabel}</div>`;
                     lastFormat = formatKey;
                 }
 
-                // Datos Artículo
                 const imgUrl = row[COLS.IMAGEN];
                 const hasImg = imgUrl && imgUrl.length > 5;
                 const nombre = cleanVal(row[COLS.NOMBRE]);
@@ -440,7 +428,6 @@
                 const precio = cleanVal(row[COLS.PRECIO]);
                 const id = row[COLS.ID];
                 
-                // Badges Técnicos
                 let badgesHtml = '';
                 const clase = cleanVal(row[COLS.CLASE]);
                 const rVal = cleanVal(row[COLS.R]);
@@ -470,8 +457,7 @@
                         </div>
                         <div class="text-[10px] text-gray-300 mt-1 font-mono text-right">#${id}</div>
                     </div>
-                </div>
-                `;
+                </div>`;
             });
 
             container.innerHTML = html;
@@ -481,7 +467,6 @@
             const container = document.getElementById('packing-container');
             const uniquePacks = new Map();
 
-            // Extraer packings únicos por formato
             appData.serieRows.forEach(r => {
                 const medida = cleanVal(r[COLS.MEDIDA]);
                 const espesor = cleanVal(r[COLS.ESPESOR]);
@@ -492,7 +477,7 @@
                         medida, espesor,
                         pz_cj: cleanVal(r[COLS.PZ_CAJA]),
                         m2_cj: cleanVal(r[COLS.M2_CAJA]),
-                        cj_pal: cleanVal(r[COLS.M2_PALLET]), // Ojo: CSV a veces tiene m2/pal
+                        cj_pal: cleanVal(r[COLS.M2_PALLET]),
                         kg_cj: cleanVal(r[COLS.KG_CAJA]),
                         kg_pal: cleanVal(r[COLS.KG_PALLET])
                     });
@@ -518,31 +503,23 @@
                         <div class="packing-row"><span class="label-key">Kg/Caja</span> <span class="label-val text-white">${p.kg_cj || '-'}</span></div>
                         <div class="packing-row"><span class="label-key">Kg/Pallet</span> <span class="label-val text-white">${p.kg_pal || '-'}</span></div>
                     </div>
-                </div>
-                `;
+                </div>`;
             });
-
             container.innerHTML = html;
         }
 
-        // UTILS
-        function cleanVal(val) {
-            if (val === null || val === undefined) return '';
-            return String(val).trim();
-        }
+        function cleanVal(val) { return (val === null || val === undefined) ? '' : String(val).trim(); }
 
         function showError() {
             document.getElementById('loader-screen').classList.add('hidden');
             document.getElementById('error-screen').classList.remove('hidden');
         }
 
-        // IMAGE MODAL
         function openImage(url) {
             const modal = document.getElementById('img-modal');
             const img = document.getElementById('modal-img-tag');
             img.src = url;
             modal.classList.add('modal-active');
-            // Bloquear scroll body
             document.body.style.overflow = 'hidden';
         }
 
