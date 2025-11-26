@@ -215,6 +215,23 @@
         }
         .btn-secondary:active { transform: scale(0.96); background: #f8fafc; }
 
+        /* Estilo para el enlace clickeable */
+        .url-box-link {
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            transition: background-color 0.2s;
+        }
+        .url-box-link:hover {
+            background-color: #f1f5f9;
+        }
+        .url-box-link:hover span {
+            color: var(--pamesa-red);
+            text-decoration: underline;
+        }
+
         /* PRINT STYLES */
         @media print {
             .mobile-header, #sidebar, .btn-primary, .btn-secondary, .no-print { display: none !important; }
@@ -275,7 +292,7 @@
 
             <!-- Footer Sidebar -->
             <div class="p-4 border-t border-gray-100 bg-gray-50 text-center">
-                <p class="text-[10px] text-gray-400">v2.0 Mobile Optimized</p>
+                <p class="text-[10px] text-gray-400">v2.1 Mobile Optimized</p>
             </div>
         </aside>
 
@@ -304,12 +321,13 @@
                     <!-- Canvas QR -->
                     <div id="qr-canvas"></div>
                     
-                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-6">Escanea para ver catálogo</p>
+                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-6">Escanea o haz clic para ver</p>
 
-                    <!-- URL Box (Oculto en print) -->
-                    <div class="url-display w-full bg-slate-50 border border-slate-200 rounded-lg p-3 mb-6 font-mono text-[10px] text-slate-500 break-all select-all">
-                        <span id="qr-url">https://...</span>
-                    </div>
+                    <!-- URL Box (Ahora es un link Clickable) -->
+                    <a id="qr-url-link" href="#" target="_blank" class="url-display url-box-link w-full bg-slate-50 border border-slate-200 rounded-lg p-3 mb-6 group">
+                        <span id="qr-url" class="font-mono text-[10px] text-slate-500 break-all line-clamp-2 text-left">https://...</span>
+                        <i data-lucide="external-link" class="w-4 h-4 text-slate-300 group-hover:text-red-600 shrink-0"></i>
+                    </a>
 
                     <!-- Botones -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full no-print">
@@ -405,7 +423,7 @@
             sortedColls.forEach(coll => {
                 const series = Array.from(APP_STATE.hierarchy[coll]).sort();
                 
-                // Contenedor de Colección (Detalle: Acordeón simple)
+                // Contenedor de Colección
                 const container = document.createElement('div');
                 container.className = 'mb-1';
 
@@ -414,11 +432,9 @@
                 header.className = 'collection-header';
                 header.innerHTML = `<span><i data-lucide="folder" class="inline w-3 h-3 mr-1 text-gray-300"></i> ${coll}</span> <i data-lucide="chevron-down" class="w-3 h-3 text-gray-300"></i>`;
                 
-                // Lista de Series (Oculta por defecto? No, mejor visible para búsqueda rápida o estilo acordeón)
-                // Vamos a dejarlas visibles para facilitar el scroll rápido, o colapsables.
-                // Decisión Mobile: Colapsable para no saturar.
+                // Lista de Series (Colapsable)
                 const list = document.createElement('div');
-                list.className = 'hidden bg-white'; // Oculto por defecto
+                list.className = 'hidden bg-white'; 
                 
                 header.onclick = () => {
                     list.classList.toggle('hidden');
@@ -459,7 +475,13 @@
             document.getElementById('qr-serie').innerText = serieName;
 
             const finalUrl = `${CONFIG.baseUrl}?s=${encodeURIComponent(serieName)}`;
+            
+            // Actualizar Texto de la URL
             document.getElementById('qr-url').innerText = finalUrl;
+            
+            // Actualizar el Enlace (HREF)
+            const linkElement = document.getElementById('qr-url-link');
+            linkElement.href = finalUrl;
 
             // QR Generate
             const canvasContainer = document.getElementById('qr-canvas');
@@ -473,6 +495,8 @@
                 colorLight : "#ffffff",
                 correctLevel : QRCode.CorrectLevel.H
             });
+            
+            lucide.createIcons(); // Recargar icono del link
         }
 
         // --- BUSCADOR ---
@@ -491,9 +515,6 @@
                     item.style.display = 'none';
                 }
             });
-            
-            // Ocultar cabeceras vacías si se desea pulir más, 
-            // pero para rendimiento básico esto basta.
         });
 
         // --- DESCARGAR ---
