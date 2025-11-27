@@ -1053,18 +1053,21 @@
                     APP_STATE.data = results.data.map(row => {
                         const dateStr = row[COLS.FECHA_ALTA];
                         let dateObj = null;
-                        if (parts.length === 3) {
-    let year = parseInt(parts[2]);
-    let month = parseInt(parts[1]) - 1;
-    let day = parseInt(parts[0]);
+                        if (dateStr) {
+                            const parts = dateStr.split('/');
+                            if (parts.length === 3) {
+                                // Asumiendo DD/MM/YYYY
+                                let year = parseInt(parts[2]);
+                                const month = parseInt(parts[1]) - 1; // Los meses en JS van de 0 a 11
+                                const day = parseInt(parts[0]);
 
-    // Si el año es menor a 100 (ej: 23, 24, 25), asumimos que es 2000+
-    if (year < 100) {
-        year += 2000;
-    }
+                                // CORRECCIÓN: Si el año tiene 2 dígitos (ej: 25), asumimos 2000+
+                                if (year < 100) {
+                                    year += 2000;
+                                }
 
-    dateObj = new Date(year, month, day);
-}
+                                dateObj = new Date(year, month, day);
+                            }
                         }
                         return { ...row, _dateObj: dateObj };
                     });
